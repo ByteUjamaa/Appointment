@@ -1,0 +1,21 @@
+.App {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.container h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.container p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
