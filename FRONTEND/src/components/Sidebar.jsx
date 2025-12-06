@@ -6,15 +6,23 @@ import {
   User,
 } from "lucide-react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
+  const navigate = useNavigate();
+  
   const navItems = [
     { name: "Home", path: "/studentDashboard/home", icon: <Home size={20} /> },
     { name: "Appointments", path: "/studentDashboard/appointments", icon: <CalendarCheck size={20} /> },
     { name: "Reports", path: "/studentDashboard/reports", icon: <BarChart3 size={20} /> },
     { name: "Profile", path: "/studentDashboard/profile", icon: <User size={20} /> },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
 
   return (
     <>
@@ -60,7 +68,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </ul>
 
         <div className="mt-10 pt-5 border-t">
-          <button className="flex items-center gap-3 text-red-600 font-semibold">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-red-600 font-semibold hover:text-red-700 transition-colors w-full"
+          >
             <LogOut size={20} />
             Logout
           </button>

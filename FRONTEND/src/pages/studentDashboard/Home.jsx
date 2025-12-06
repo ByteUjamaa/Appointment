@@ -26,9 +26,22 @@ const USE_MOCK = true;
 
 
 export default function  Home()  {
-
     const [summary,setSummary] = useState(null);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [userName, setUserName] = useState('Student');
+
+    useEffect(() => {
+        // Get user name from localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                setUserName(user.username || 'Student');
+            } catch (e) {
+                setUserName('Student');
+            }
+        }
+    }, []);
 
     useEffect(()=>{
         if (USE_MOCK){
@@ -61,7 +74,7 @@ export default function  Home()  {
 
     {/* HEADER */}
     <div className='text-start'>
-      <h1 className='text-3xl font-semibold'>Welcome back, name</h1>
+      <h1 className='text-3xl font-semibold'>Welcome back, {userName}</h1>
       <p>Here's an overview of your consultation activities</p>
     </div>
 
