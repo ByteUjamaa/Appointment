@@ -32,7 +32,7 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/auth/login/', {
+      const response = await api.post('/Accounts/login/', {
         username: formData.username,
         password: formData.password,
       });
@@ -45,15 +45,15 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
 
-      // Redirect based on user role
-      const userRole = response.data.user?.role || response.data.role;
-      if (userRole === 'lecturer' || userRole === 'Lecturer') {
-        navigate('/lecturer/dashboard');
-      } else if (userRole === 'student' || userRole === 'Student') {
-        navigate('/student/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      // Clear form fields
+      setFormData({
+        username: '',
+        password: '',
+      });
+
+      // Redirect based on backend response
+      const redirectPath = response.data.redirect_path || '/student/dashboard';
+      navigate(redirectPath);
     } catch (err) {
       setError(
         err.response?.data?.message ||
