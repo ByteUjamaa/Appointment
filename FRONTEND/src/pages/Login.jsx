@@ -52,7 +52,13 @@ const Login = () => {
       });
 
       // Redirect based on backend response
-      const redirectPath = response.data.redirect_path || '/student/dashboard';
+      // Map backend redirect paths to frontend routes
+      let redirectPath = response.data.redirect_path || '/studentDashboard/home';
+      if (redirectPath === '/profile') {
+        redirectPath = '/studentDashboard/profile';
+      } else if (redirectPath === '/student/dashboard') {
+        redirectPath = '/studentDashboard/home';
+      }
       navigate(redirectPath);
     } catch (err) {
       setError(
@@ -92,7 +98,7 @@ const Login = () => {
           )}
 
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 text-gray-700 font-medium text-sm">
+            <label htmlFor="username" className="block mb-2 text-gray-900 font-medium text-sm">
               Username
             </label>
             <input
