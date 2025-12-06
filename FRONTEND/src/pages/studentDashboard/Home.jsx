@@ -11,8 +11,15 @@ const dashboardMock = {
   reports: {
     drafts: 3,
     submitted: 14,
+    total:17,
   },
-  activities: 41,
+  activities:{
+    completedSessions:5,
+    totalAppointments:7,
+    totalReports:9,
+    totalActivities:20,
+
+  }
 };
 const USE_MOCK = true;
 
@@ -58,33 +65,33 @@ export default function  Home()  {
       <p>Here's an overview of your consultation activities</p>
     </div>
 
-    {/* ✅ ROW 1 — APPOINTMENTS */}
-    <div>
+    {/*  APPOINTMENTS */}
+    <div className=''>
       <h2 className="text-lg font-semibold mb-4">Appointments</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-        <div className='bg-white shadow rounded-xl p-6'>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Pending</h3>
-          <p className='text-3xl font-bold text-yellow-600'>
+          <p className='text-3xl font-bold text-gray-500'>
             {summary?.appointments?.pending}
           </p>
         </div>
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Accepted</h3>
-          <p className='text-3xl font-bold text-blue-600'>
+          <p className='text-3xl font-bold text-gray-500'>
             {summary?.appointments?.accepted}
           </p>
         </div>
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Completed</h3>
-          <p className='text-3xl font-bold text-green-600'>
+          <p className='text-3xl font-bold text-gray-500'>
             {summary?.appointments?.completed}
           </p>
         </div>
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Upcoming</h3>
           <p className='text-3xl font-bold'>
             {summary?.appointments?.upcoming}
@@ -94,26 +101,26 @@ export default function  Home()  {
       </div>
     </div>
 
-    {/* ✅ ROW 2 — REPORTS */}
+    {/* — REPORTS */}
     <div>
       <h2 className="text-lg font-semibold mb-4">Reports</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 lg:grid-cols-3 gap-6">
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Drafts</h3>
-          <p className='text-3xl font-bold text-orange-600'>
+          <p className='text-3xl font-bold text-gray-500'>
             {summary?.reports?.drafts}
           </p>
         </div>
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Submitted</h3>
-          <p className='text-3xl font-bold text-purple-600'>
+          <p className='text-3xl font-bold text-gray-500'>
             {summary?.reports?.submitted}
           </p>
         </div>
 
-        <div className='bg-white shadow rounded-xl p-6'>
+        <div className='bg-white shadow border border-blue-400 rounded-xl p-6'>
           <h3 className='text-gray-500'>Total Reports</h3>
           <p className='text-3xl font-bold'>
             {summary?.reports?.total}
@@ -123,40 +130,50 @@ export default function  Home()  {
       </div>
     </div>
 
-    {/* ✅ ROW 3 — ACTIVITY OVERVIEW */}
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Activity Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-        <div className="bg-white shadow rounded-xl p-6">
-          <h3 className="text-gray-500">Completed Sessions</h3>
-          <p className="text-3xl font-bold text-green-600">
+
+    {/* activity summary */}
+
+    <div className='bg-white rounded-xl border border-blue-400 px-8 py-9'>
+      <h1 className='mb-3 font-semibold'>Actitvity Overview</h1>
+      <p className='mb-3'>Summary of your consultation journey</p>
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+        <div className="bg-gray-100  rounded-xl p-6">
+           <p className="text-3xl font-bold">
             {summary?.activities?.completedSessions}
           </p>
+          <h3 className="text-gray-500">Completed Sessions </h3>
+         
         </div>
 
-        <div className="bg-white shadow rounded-xl p-6">
-          <h3 className="text-gray-500">Total Appointments</h3>
-          <p className="text-3xl font-bold">
+        <div className="bg-gray-100 shadow-md rounded-xl p-6">
+           <p className="text-3xl font-bold">
             {summary?.activities?.totalAppointments}
           </p>
+          <h3 className="text-gray-500">Total Appointments </h3>
+         
         </div>
 
-        <div className="bg-white shadow rounded-xl p-6">
-          <h3 className="text-gray-500">Total Reports</h3>
-          <p className="text-3xl font-bold">
+        <div className="bg-gray-100 shadow-md rounded-xl p-6">
+           <p className="text-3xl font-bold">
             {summary?.activities?.totalReports}
           </p>
+          <h3 className="text-gray-500">Total Reports</h3>
+         
         </div>
 
-        <div className="bg-white shadow rounded-xl p-6">
-          <h3 className="text-gray-500">Total Activities</h3>
-          <p className="text-3xl font-bold">
+        <div className="bg-gray-100 shadow-md rounded-xl p-6">
+           <p className="text-3xl font-bold">
             {summary?.activities?.totalActivities}
           </p>
+          <h3 className="text-gray-500">Total Activities</h3>
+         
         </div>
 
       </div>
+
+
     </div>
 
   </div>

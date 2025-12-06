@@ -15,7 +15,7 @@ const StudentDashboard = () => {
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
       {/*  MAIN CONTENT AREA */}
-      <div className="flex-1 md:ml-64">
+      <div className="flex-1 lg:ml-64">
 
        
         <Header isOpen={isOpen} setIsOpen={setIsOpen} />

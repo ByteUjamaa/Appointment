@@ -22,7 +22,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           style={{ top: "72px" }}
         />
       )}
