@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import StatCard from "./components/StatCard";
 import { Clock, CheckCircle, XCircle, TrendingUp } from "lucide-react";
-import { getDashboardStats, getRecentActivity } from "../../api/consultantApi";
+// import { getDashboardStats, getRecentActivity } from "../../api/consultantApi";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);

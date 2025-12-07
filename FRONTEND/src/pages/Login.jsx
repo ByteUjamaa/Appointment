@@ -32,7 +32,7 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/auth/login/', {
+      const response = await api.post('/Accounts/login/', {
         username: formData.username,
         password: formData.password,
       });
