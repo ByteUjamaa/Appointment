@@ -8,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from .models import Students,Supervisor
-from .serializer import LoginSerializer, StudentSerializer,SupervisorSerializer
+from .serializers import LoginSerializer, StudentSerializer,SupervisorSerializer
 
 
 @api_view(['POST'])
@@ -123,7 +123,7 @@ def profile_view(request):
 
 # KWAAJILI YA KUTENGENEZA SUPERVISORS
 @api_view(['POST'])
-# @permission_classes([permissions.IsAdminUser])
+# @permission_classes([permissions.IsAdminUser])   
 def create_supervisor(request):
     serializer = SupervisorSerializer(data=request.data)
     if serializer.is_valid():
