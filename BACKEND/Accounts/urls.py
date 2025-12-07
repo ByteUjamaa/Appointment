@@ -17,3 +17,17 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('change-password/', ChangePasswordView.as_view(), name='change_password'),
 ]
+
+from .views import (
+    loginview,
+    check_dashboard_access,
+    create_supervisor,
+    list_supervisors
+)
+urlpatterns = [
+    path("login/", loginview, name="student-login"),
+    path("check-dashboard-access/", check_dashboard_access, name="check-dashboard-access"),
+    path('create-supervisor/', create_supervisor, name='create-supervisor'),
+    path('supervisors/', list_supervisors, name='supervisors-list'),
+]
+

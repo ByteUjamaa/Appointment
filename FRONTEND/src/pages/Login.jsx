@@ -32,7 +32,7 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/auth/login/', {
+      const response = await api.post('/accounts/login/', {
         username: formData.username,
         password: formData.password,
       });
@@ -45,15 +45,21 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
 
-      // Redirect based on user role
-      const userRole = response.data.user?.role || response.data.role;
-      if (userRole === 'lecturer' || userRole === 'Lecturer') {
-        navigate('/lecturer/dashboard');
-      } else if (userRole === 'student' || userRole === 'Student') {
-        navigate('/student/dashboard');
-      } else {
-        navigate('/dashboard');
+      // Clear form fields
+      setFormData({
+        username: '',
+        password: '',
+      });
+
+      // Redirect based on backend response
+      // Map backend redirect paths to frontend routes
+      let redirectPath = response.data.redirect_path || '/studentDashboard/home';
+      if (redirectPath === '/profile') {
+        redirectPath = '/studentDashboard/profile';
+      } else if (redirectPath === '/student/dashboard') {
+        redirectPath = '/studentDashboard/home';
       }
+      navigate(redirectPath);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -92,7 +98,7 @@ const Login = () => {
           )}
 
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 text-gray-700 font-medium text-sm">
+            <label htmlFor="username" className="block mb-2 text-gray-900 font-medium text-sm">
               Username
             </label>
             <input
