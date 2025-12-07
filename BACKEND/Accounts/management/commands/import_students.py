@@ -7,7 +7,8 @@ from django.contrib.auth.hashers import make_password
 from Accounts.models import Students  # ← This is YOUR model
 
 class Command(BaseCommand):
-    help = "Import students into YOUR custom Students model"
+    #help is a description that shows when you run python manage.py help import_students
+    help = "Import students into the database using a single command"
 
     def handle(self, *args, **options):
         csv_path = os.path.join(os.path.dirname(__file__), "..", "..", "load", "students.csv")
@@ -27,7 +28,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR("Wrong CSV headers!"))
                 return
 
-            self.stdout.write("Importing into custom Students model...\n")
+            self.stdout.write("Importing into Students model...\n")
 
             for row in reader:
                 reg_no = row["REGNO"].strip().replace(" ", "")

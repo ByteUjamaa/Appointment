@@ -73,8 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Backend_appointment.wsgi.application'
 
-AUTH_USER_MODEL = 'Accounts.Students'
-
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
