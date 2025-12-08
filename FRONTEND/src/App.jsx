@@ -32,7 +32,7 @@ function App() {
         </Route>
 
         {/* CONSULTANT DASHBOARD */}
-        <Route path="/consultantDashboard" element={<Dashboard />} />
+        <Route path="/ConsultantDashboard" element={<Dashboard />} />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
