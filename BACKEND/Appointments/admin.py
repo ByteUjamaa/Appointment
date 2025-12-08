@@ -1,7 +1,4 @@
 from django.contrib import admin
-from .models import AppointmentType,Teacher, Appointment
-
+from .models import AppointmentType
 
 admin.site.register(AppointmentType)
-admin.site.register(Teacher)
-admin.site.register(Appointment)

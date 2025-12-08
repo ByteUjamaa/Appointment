@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AppointmentType, Teacher, Appointment
+from .models import AppointmentType
 
 class AppointmentTypeSerializer(serializers.ModelSerializer):
     value = serializers.CharField(source='name', read_only=True)  
@@ -8,31 +8,3 @@ class AppointmentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentType
         fields = ['id', 'value', 'label']
-
-
-class TeacherSerializer(serializers.ModelSerializer):
-    value = serializers.CharField(source='user.username', read_only=True)
-    label = serializers.CharField(source='user.username', read_only=True)
-
-    class Meta:
-        model = Teacher
-        fields = ['id', 'value', 'label', 'specialization', 'user']
-
-
-class AppointmentSerializer(serializers.ModelSerializer):
-    status_label = serializers.CharField(source='status', read_only=True)
-
-    class Meta:
-        model = Appointment
-        fields = [
-            'id',
-            'student',
-            'teacher',
-            'appointment_type',
-            'date',
-            'time',
-            'description',
-            'status',
-            'status_label',
-            'created_at'
-        ]
