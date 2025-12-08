@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'Accounts',
     'Appointments',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -134,12 +135,27 @@ REST_FRAMEWORK = {
 }
 
 # CORS Settings
+<<<<<<< HEAD
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:3001",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
 ]
+=======
+# For development - allow all origins
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Or use specific origins (comment out CORS_ALLOW_ALL_ORIGINS if using this)
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:3001",
+#     "http://localhost:3002",
+#     "http://127.0.0.1:3000",
+#     "http://127.0.0.1:3001",
+#     "http://127.0.0.1:3002",
+# ]
+>>>>>>> 0b693cd1e55bdd4cce8b760936d417b522965e1f
 
 CORS_ALLOW_CREDENTIALS = True
 
