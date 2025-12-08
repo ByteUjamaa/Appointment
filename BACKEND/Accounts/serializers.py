@@ -32,15 +32,51 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_login']
 
 
-class UpdatePasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
 
-    def validate(self, attrs):
-        if attrs["new_password"] != attrs["confirm_password"]:
-            raise serializers.ValidationError("Passwords do not match.")
-        return attrs
+
+class SupervisorLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
     
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            raise serializers.ValidationError("Must include username and password")
+        
+        # Try to get supervisor
+        try:
+            supervisor = Supervisor.objects.get(username=username)
+        except Supervisor.DoesNotExist:
+            raise serializers.ValidationError("Invalid username or password")
+        
+        # Check if user is active
+        if not supervisor.is_active:
+            raise serializers.ValidationError("Account is disabled")
+        
+        # Check password - handle both hashed and plain text
+        from django.contrib.auth.hashers import check_password
+        password_valid = False
+        
+        # Check if password is hashed
+        if supervisor.password.startswith('pbkdf2_') or supervisor.password.startswith('bcrypt') or supervisor.password.startswith('argon2'):
+            password_valid = check_password(password, supervisor.password)
+        else:
+            # Password might be stored as plain text, do direct comparison
+            password_valid = (supervisor.password == password)
+        
+        if not password_valid:
+            raise serializers.ValidationError("Invalid username or password")
+                
+        data['supervisor'] = supervisor
+        return data
+
+class SupervisorProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supervisor
+        fields = ['id', 'username', 'first_name', 'last_name', 'title', 'role', 'first_login']
+        read_only_fields = ['id', 'role', 'first_login']
 
 
 class SupervisorSerializer(serializers.ModelSerializer):

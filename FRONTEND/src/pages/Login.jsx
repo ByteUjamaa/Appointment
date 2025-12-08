@@ -3,20 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    setError(''); // Clear error when user types
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -24,70 +18,61 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    // Basic validation
     if (!formData.username || !formData.password) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
 
-    try {
-      const response = await api.post('/accounts/login/', {
-        username: formData.username,
-        password: formData.password,
-      });
+   try {
+  const response = await api.post('/accounts/login/', {
+    username: formData.username,
+    password: formData.password,
+  });
 
-      // Store token and user data
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-      }
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
 
-      // Clear form fields
-      setFormData({
-        username: '',
-        password: '',
-      });
+  // If login is successful
+  if (response.data.token) localStorage.setItem('token', response.data.token);
+  if (response.data.user) localStorage.setItem('user', JSON.stringify(response.data.user));
+  if (response.data.role) localStorage.setItem('role', response.data.role);
 
-      // Redirect based on backend response
-      // Map backend redirect paths to frontend routes
-      let redirectPath = response.data.redirect_path || '/studentDashboard/home';
-      if (redirectPath === '/profile') {
-        redirectPath = '/studentDashboard/profile';
-      } else if (redirectPath === '/student/dashboard') {
-        redirectPath = '/studentDashboard/home';
-      }
-      navigate(redirectPath);
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Invalid username or password. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+  // Redirect logic
+  let redirectPath = '/';
+  if (response.data.role === 'student') {
+    redirectPath = response.data.first_login ? '/studentDashboard/profile' : '/studentDashboard/home';
+  } else if (response.data.role === 'supervisor') {
+    redirectPath = response.data.first_login ? '/atudentDashboard/profile' : '/studentDashboard/home';
+  }
+
+  navigate(redirectPath);
+} catch (err) {
+  // Better error reporting
+  if (err.response) {
+    // Backend responded with status code outside 2xx
+    console.error('Backend error:', err.response.data);
+    setError(err.response.data.error || err.response.data.message || 'Login failed');
+  } else if (err.request) {
+    // Request was made but no response
+    console.error('No response from backend:', err.request);
+    setError('No response from server. Check your network.');
+  } else {
+    // Something else happened
+    console.error('Error', err.message);
+    setError(err.message);
+  }
+} finally {
+  setLoading(false);
+}
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-8 relative overflow-hidden">
-      {/* Subtle gradient backgrounds in corners */}
       <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-200/30 to-slate-300/20 rounded-br-full"></div>
       <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-gradient-to-tl from-purple-200/20 to-slate-300/20 rounded-tl-full"></div>
-      
+
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-10 relative z-10">
-        <div className="text-center mb-8">
-          {/* Icon Container */}
-          <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-11 h-11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" fill="white"/>
-            </svg>
-          </div>
-          
-          <h1 className="text-gray-800 text-3xl font-bold mb-2">Student Portal</h1>
-          <p className="text-gray-500 text-sm">Sign in to access your consultation dashboard</p>
+        <div className="text-center mb-6">
+          <h1 className="text-gray-800 text-3xl font-bold mb-2">Portal Login</h1>
+          <p className="text-gray-500 text-sm">Sign in to access your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full mb-6">
@@ -98,9 +83,7 @@ const Login = () => {
           )}
 
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 text-gray-900 font-medium text-sm">
-              Username
-            </label>
+            <label htmlFor="username" className="block mb-2 text-gray-900 font-medium text-sm">Username</label>
             <input
               type="text"
               id="username"
@@ -115,9 +98,7 @@ const Login = () => {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block mb-2 text-gray-700 font-medium text-sm">
-              Password
-            </label>
+            <label htmlFor="password" className="block mb-2 text-gray-700 font-medium text-sm">Password</label>
             <input
               type="password"
               id="password"
@@ -139,15 +120,9 @@ const Login = () => {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-{/* 
-        <div className="bg-blue-100 rounded-lg p-5 mt-6">
-          <p className="font-bold text-blue-800 mb-3 text-sm">Default Credentials:</p>
-          <p className="text-blue-800 my-1 text-sm">Username: student</p>
-          <p className="text-blue-800 my-1 text-sm">Password: password123</p>
-        </div> */}
       </div>
     </div>
   );
 };
-
+  
 export default Login;
