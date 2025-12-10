@@ -5,14 +5,19 @@ import Login from './pages/Login';
 
 // Student dashboard pages
 import StudentDashboard from './pages/studentDashboard/StudentDashboard';
-import Home from './pages/studentDashboard/Home';
-import Appointments from './pages/studentDashboard/Appointments';
-import Reports from './pages/studentDashboard/Reports';
-import Profile from './pages/studentDashboard/Profile';
+import StudentHome from './pages/studentDashboard/Home';
+import StudentAppointments from './pages/studentDashboard/Appointments';
+import StudentReports from './pages/studentDashboard/Reports';
+import StudentProfile from './pages/studentDashboard/Profile';
+
 import './styles/App.css';
 
-// Consultant dashboard
+// Consultant dashboard pages
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
+import ConsultantHome from './pages/ConsultantDashboard/Home';
+import ConsultantRequests from './pages/ConsultantDashboard/Requests';
+import ConsultantReports from './pages/ConsultantDashboard/Reports';
+import TeacherProfile from './pages/teacherDashboard/TeacherProfile';
 
 function App() {
   return (
@@ -24,21 +29,23 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
 
-          {/* STUDENT DASHBOARD (Nested Routes) */}
+          {/* STUDENT DASHBOARD ROUTES */}
           <Route path="/studentDashboard/*" element={<StudentDashboard />}>
             <Route index element={<Navigate to="home" replace />} />
-            <Route path="home" element={<Home />} />
-            <Route path="appointments" element={<Appointments />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="home" element={<StudentHome />} />
+            <Route path="appointments" element={<StudentAppointments />} />
+            <Route path="reports" element={<StudentReports />} />
+            <Route path="profile" element={<StudentProfile />} />
           </Route>
 
-          {/* CONSULTANT DASHBOARD */}
-          <Route path="/ConsultantDashboard" element={<Dashboard />} />
-
-          {/* LEGACY REDIRECTS */}
-          <Route path="/profile" element={<Navigate to="/studentDashboard/profile" replace />} />
-          <Route path="/student/dashboard" element={<Navigate to="/studentDashboard/home" replace />} />
+          {/* CONSULTANT DASHBOARD ROUTES */}
+          <Route path="/consultantDashboard/*" element={<Dashboard />}>
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<ConsultantHome />} />
+            <Route path="requests" element={<ConsultantRequests />} />
+            <Route path="reports" element={<ConsultantReports />} />
+            <Route path="profile" element={<TeacherProfile />} />
+          </Route>
 
           {/* FALLBACK */}
           <Route path="*" element={<Navigate to="/" replace />} />
