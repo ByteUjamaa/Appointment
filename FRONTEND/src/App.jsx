@@ -50,7 +50,7 @@ function App() {
 
           {/* Consultant Dashboard Routes */}
           <Route path="/ConsultantDashboard" element={<Dashboard />} />
-          <Route path="/ConsultantDashboard/profile" element={<ConsultantProfile />} />
+          <Route path="/ConsultantDashboard/Consultantprofile" element={<ConsultantProfile />} />
 
           {/* Redirect old routes */}
           <Route path="/profile" element={<Navigate to="/studentDashboard/profile" replace />} />
