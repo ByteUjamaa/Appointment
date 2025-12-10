@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Python
 __pycache__/
 *.py[cod]
@@ -47,8 +46,6 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
-=======
 BACKEND/db.sqlite3
 **/__pycache__/
 *.pyc
->>>>>>> 0b693cd1e55bdd4cce8b760936d417b522965e1f
