@@ -1,11 +1,10 @@
-// src/pages/ConsultantDashboard/ConsultantProfile.jsx
 import React, { useState } from "react";
 import ProfileForm from "../../components/ProfileForm";
 
 const ConsultantProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   
-  // Mock data for consultant/teacher - NO registration number
+  // Mock data for consultant/teacher 
   const [profile, setProfile] = useState({
     full_name: "Dr. Jane Smith",
     username: "jsmith",
@@ -14,7 +13,7 @@ const ConsultantProfile = () => {
 
   });
 
-  // If editing, show ProfileForm with role="teacher" (no major/year)
+
   if (isEditing) {
     return <ProfileForm role="teacher" mode="edit" />;
   }
