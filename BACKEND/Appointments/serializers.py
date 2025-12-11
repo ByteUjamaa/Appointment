@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AppointmentType, Teacher, Appointment
+from .models import AppointmentType, Teacher, Appointment, AppointmentResponse
 
 class AppointmentTypeSerializer(serializers.ModelSerializer):
     value = serializers.CharField(source='name', read_only=True)  
@@ -36,3 +36,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'status_label',
             'created_at'
         ]
+class AppointmentResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointmentResponse
+        fields = "__all__"
+        read_only_fields = ["appointment", "updated_at"]

@@ -36,33 +36,28 @@ class Appointment(models.Model):
         ('Completed', 'Completed'),
     ]
 
-    # Student
     student = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="appointments"
     )
 
-    # Teacher
     teacher = models.ForeignKey(
         Teacher,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="appointments"
     )
 
-    # Appointment type
     appointment_type = models.ForeignKey(
         AppointmentType,
         on_delete=models.CASCADE
     )
 
-    # Date & time
     date = models.DateField()
     time = models.TimeField()
 
-    # message/description
     description = models.TextField()
 
-    # Status
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -73,3 +68,42 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.student.username} -> {self.teacher.user.username}"
+
+
+class AppointmentResponse(models.Model):    
+    appointment = models.OneToOneField(
+        Appointment,
+        on_delete=models.CASCADE,
+        related_name="response"
+    )
+    
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="appointment_responses"
+    )
+    
+    teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.CASCADE,
+        related_name="appointment_responses"
+    )
+
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Accepted", "Accepted"),
+        ("Rejected", "Rejected"),
+        ("Completed", "Completed"),
+    ]
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="Pending"
+    )
+
+    supervisor_comment = models.TextField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Response for {self.appointment} - {self.status}"
