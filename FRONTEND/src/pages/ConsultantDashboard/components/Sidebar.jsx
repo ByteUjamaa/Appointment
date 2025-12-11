@@ -1,18 +1,18 @@
 import { Home, FileText, BarChart2, User, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }) {
   const linkClasses =
     "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition";
-    
 
   return (
-    <div className=" w-64 h-screen bg-white shadow-md p-5">
+    <div
+      className={`fixed md:static top-0 left-0 h-screen bg-white shadow-md p-5 z-50 transition-transform duration-300
+      ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 w-64`}
+    >
       <h2 className="text-2xl font-bold mb-6">Consultant Portal</h2>
 
       <ul className="space-y-4">
-
-        {/* HOME */}
         <NavLink
           to="/consultantDashboard/home"
           className={({ isActive }) =>
@@ -22,7 +22,6 @@ export default function Sidebar() {
           <Home /> Home
         </NavLink>
 
-        {/* REQUESTS */}
         <NavLink
           to="/consultantDashboard/requests"
           className={({ isActive }) =>
@@ -32,7 +31,6 @@ export default function Sidebar() {
           <FileText /> Requests
         </NavLink>
 
-        {/* REPORTS */}
         <NavLink
           to="/consultantDashboard/reports"
           className={({ isActive }) =>
@@ -42,7 +40,6 @@ export default function Sidebar() {
           <BarChart2 /> Reports
         </NavLink>
 
-        {/* PROFILE */}
         <NavLink
           to="/consultantDashboard/Consultantprofile"
           className={({ isActive }) =>
@@ -52,7 +49,6 @@ export default function Sidebar() {
           <User /> Profile
         </NavLink>
 
-        {/* LOGOUT */}
         <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer text-red-600">
           <LogOut /> Logout
         </div>
