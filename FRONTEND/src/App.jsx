@@ -1,27 +1,4 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
-import Login from './pages/Login';
-
-// Student dashboard pages
-import StudentDashboard from './pages/studentDashboard/StudentDashboard';
-import StudentHome from './pages/studentDashboard/Home';
-import StudentAppointments from './pages/studentDashboard/Appointments';
-import StudentReports from './pages/studentDashboard/Reports';
-import StudentProfile from './pages/studentDashboard/Profile';
-
-import './styles/App.css';
-
-// Consultant dashboard pages
-import Dashboard from './pages/ConsultantDashboard/Dashboard';
-import ConsultantHome from './pages/ConsultantDashboard/Home';
-import ConsultantRequests from './pages/ConsultantDashboard/Requests';
-import ConsultantReports from './pages/ConsultantDashboard/Reports';
-import TeacherProfile from './pages/teacherDashboard/TeacherProfile';
-
-
-
 // App.jsx - Updated with ConsultantProfile
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -47,7 +24,7 @@ import Dashboard from './pages/ConsultantDashboard/Dashboard';
 import ConsultantHome from './pages/ConsultantDashboard/Home';
 import ConsultantRequests from './pages/ConsultantDashboard/Requests';
 import ConsultantReports from './pages/ConsultantDashboard/Reports';
-import ConsultantProfile from './pages/ConsultantDashboard/Profile';
+import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
 
 
 import './styles/App.css';
@@ -83,7 +60,7 @@ function App() {
           <Route path="home" element={<ConsultantHome />} />
           <Route path="requests" element={<ConsultantRequests />} />
           <Route path="reports" element={<ConsultantReports />} />
-          <Route path="/ConsultantDashboard/Consultantprofile" element={<ConsultantProfile />} />
+          <Route path="./ConsultantDashboard/Consultantprofile" element={<ConsultantProfile />} />
 
 
           {/* Redirect old routes */}
