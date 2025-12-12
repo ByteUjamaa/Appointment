@@ -1,39 +1,21 @@
 import React, { useState } from "react";
 import ProfileForm from "../../components/ProfileForm";
-import ChangePassword from "../../components/ChangePassword";
+import ChangePassword from "../../components/ChangePassword"; // Import it
 
-const Profile = () => {
+const ConsultantProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false); // Add this
   
-  const [profile, setProfile] = useState({
-    full_name: "John Doe",
-    username: "30233/T.2022",
-    email: "john@example.com",
-    phone: "+255 712 345 678",
-    major: "CSN",
-    academic_year: "3"
-  });
-
-  const handleSave = async (updatedData) => {
-    // TODO: Call your API here: PUT /accounts/profile/
-    console.log("Saving:", updatedData);
-    
-    // Update local state
-    setProfile(prev => ({ ...prev, ...updatedData }));
-    setIsEditing(false);
-    alert("Profile updated successfully!");
+  const profile = {
+    full_name: "Dr. Jane Smith",
+    username: "jsmith",
+    email: "j.smith@university.edu",
+    phone: "+255 712 987 654",
+    consultation_days: ["Monday", "Wednesday", "Friday"]
   };
 
   if (isEditing) {
-    return (
-      <ProfileForm 
-        role="student"
-        initialData={profile}
-        onSave={handleSave}
-        onCancel={() => setIsEditing(false)}
-      />
-    );
+    return <ProfileForm role="teacher" mode="edit" />;
   }
 
   return (
@@ -43,7 +25,7 @@ const Profile = () => {
         <div className="flex justify-between items-center mb-6">
           <div className="text-center flex-1">
             <div className="text-purple-600 text-5xl mb-2">👤</div>
-            <h2 className="text-2xl font-bold">Profile Information</h2>
+            <h2 className="text-2xl font-bold">Consultant Profile</h2>
             <p className="text-gray-500 text-sm">View your profile details</p>
           </div>
           
@@ -66,23 +48,26 @@ const Profile = () => {
             <div><label className="block text-sm text-gray-500 mb-1">Email</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile.email}</div></div>
             <div><label className="block text-sm text-gray-500 mb-1">Phone</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile.phone}</div></div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className="block text-sm text-gray-500 mb-1">Major</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile.major}</div></div>
-            <div><label className="block text-sm text-gray-500 mb-1">Academic Year</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">Year {profile.academic_year}</div></div>
+          <div>
+            <label className="block text-sm text-gray-500 mb-1">Consultation Days</label>
+            <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+              {profile.consultation_days.join(", ")}
+            </div>
           </div>
         </div>
 
         <div className="mt-6 space-y-3">
           <button 
-            onClick={() => setShowChangePassword(true)}
+            onClick={() => setShowChangePassword(true)} // Open modal
             className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition"
           >
             Change Password
           </button>
-          
+    
         </div>
       </div>
 
+      {/* Show ChangePassword modal */}
       {showChangePassword && (
         <ChangePassword onClose={() => setShowChangePassword(false)} />
       )}
@@ -90,4 +75,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ConsultantProfile;

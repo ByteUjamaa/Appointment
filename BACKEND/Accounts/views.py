@@ -13,6 +13,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
+import json
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.authtoken.models import Token
+from .serializers import (
+    StudentSerializer,
+    SupervisorSerializer,
+    SupervisorLoginSerializer,
+    SupervisorProfileSerializer
+)
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -62,25 +72,6 @@ def change_password_view(request):
         return Response({"message": "Password updated successfully"})
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# Accounts/views.py
-
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.hashers import check_password
-import json
-
-from .models import Students, Supervisor
-from .serializers import (
-    StudentSerializer,
-    SupervisorSerializer,
-    SupervisorLoginSerializer,
-    SupervisorProfileSerializer
-)
 
 
 #      COMBINED LOGIN (STUDENT + SUPERVISOR)

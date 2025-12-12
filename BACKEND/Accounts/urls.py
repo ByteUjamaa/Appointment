@@ -5,27 +5,18 @@ from .views import (
     profile_view,
     change_password_view,
     loginview,
-    check_dashboard_access,
-
     create_supervisor,
     list_supervisors,
-    # supervisor_login
+    
 )
 
 urlpatterns = [
-
-    # Authentication
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
-    # Profile management
     path('profile/', profile_view, name='profile'),
     path('change-password/', change_password_view, name='change_password'),
-    path('login/', loginview, name='student-login'),
-    path('check-dashboard-access/', check_dashboard_access, name='check-dashboard-access'),
     path('create-supervisor/', create_supervisor, name='create-supervisor'),
     path('supervisors/', list_supervisors, name='supervisors-list'),
-
     path("login/", loginview, name="Portal-login", ),
     
 ]
