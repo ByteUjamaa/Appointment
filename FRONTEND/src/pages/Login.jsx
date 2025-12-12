@@ -39,15 +39,17 @@ const Login = () => {
       let redirectPath = '/';
       if (response.data.role === 'student') {
         redirectPath = response.data.first_login
-          ? '/studentDashboard/profile'
+          ? '/profile'
           : '/studentDashboard/home';
       } else if (response.data.role === 'supervisor') {
         redirectPath = response.data.first_login
           ? '/ConsultantDashboard/ConsultantProfile'
           : '/ConsultantDashboard/Consultanthome';
       }
+      // const redirectPath = response.data.redirect_path;
+       navigate(redirectPath);
 
-      navigate(redirectPath);
+      // navigate(redirectPath);
 
     } catch (err) {
       if (err.response) {
