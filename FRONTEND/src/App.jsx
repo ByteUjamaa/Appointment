@@ -41,7 +41,13 @@ function App() {
           </Route>
 
           {/* Consultant Dashboard */}
-          <Route path="/ConsultantDashboard" element={<Dashboard />} />
+        <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
+  <Route index element={<Navigate to="home" replace />} />
+  <Route path="home" element={<ConsultantHome />} />
+  <Route path="requests" element={<ConsultantRequests />} />
+  <Route path="reports" element={<ConsultantReports />} />
+  <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+</Route>
 
           {/* Admin Dashboard - Nested Routes */}
           <Route path="/admin" element={<AdminDashboard />}>
