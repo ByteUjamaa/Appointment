@@ -59,33 +59,42 @@ const Requests = () => {
   };
 
   const submitAction = () => {
-    if (!modal.reason.trim()) {
-      alert("Please provide a reason.");
-      return;
+    if (modal.type !== "view") {
+      if (!modal.reason.trim()) {
+        alert("Please provide a reason.");
+        return;
+      }
+
+      if (modal.type === "accept" && (!modal.sessionDate || !modal.sessionTime)) {
+        alert("Please provide consultation date and time.");
+        return;
+      }
     }
 
-    if (modal.type === "accept" && (!modal.sessionDate || !modal.sessionTime)) {
-      alert("Please provide consultation date and time.");
-      return;
+    // Update request values
+    if (modal.type === "accept" || modal.type === "deny") {
+      setRequests((prev) =>
+        prev.map((req) =>
+          req.id === modal.requestId
+            ? {
+                ...req,
+                status: modal.type === "accept" ? "Approved" : "Denied",
+                reason: modal.reason,
+                appointment:
+                  modal.type === "accept"
+                    ? `${modal.sessionDate} at ${modal.sessionTime}`
+                    : null,
+              }
+            : req
+        )
+      );
     }
-
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.id === modal.requestId
-          ? {
-              ...req,
-              status: modal.type === "accept" ? "Approved" : "Denied",
-              reason: modal.reason,
-              appointment: modal.type === "accept" ? `${modal.sessionDate} at ${modal.sessionTime}` : null,
-            }
-          : req
-      )
-    );
 
     closeModal();
   };
 
   const filteredRequests = requests.filter((req) => req.status === activeTab);
+  const selectedRequest = requests.find((req) => req.id === modal.requestId);
 
   const tabs = ["Pending", "Approved", "Denied", "Completed"];
 
@@ -99,7 +108,9 @@ const Requests = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <h2 className="text-2xl font-bold text-gray-800">Consultation Requests</h2>
-      <p className="text-gray-600 mb-6">Manage and respond to client consultation requests.</p>
+      <p className="text-gray-600 mb-6">
+        Manage and respond to client consultation requests.
+      </p>
 
       {/* Tabs */}
       <div className="flex border-b mb-6">
@@ -107,7 +118,9 @@ const Requests = () => {
           <button
             key={tab}
             className={`px-6 py-2 font-medium ${
-              activeTab === tab ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
+              activeTab === tab
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500"
             }`}
             onClick={() => setActiveTab(tab)}
           >
@@ -117,60 +130,61 @@ const Requests = () => {
       </div>
 
       {/* Request Cards */}
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRequests.length === 0 ? (
-          <p className="text-gray-500">No {activeTab.toLowerCase()} requests.</p>
+          <p className="text-gray-500 col-span-full">
+            No {activeTab.toLowerCase()} requests.
+          </p>
         ) : (
           filteredRequests.map((req) => (
-            <div key={req.id} className="bg-white shadow rounded-xl p-6 border">
+            <div key={req.id} className="bg-white shadow rounded-xl p-4 border">
+              {/* Title and Status */}
               <div className="flex justify-between items-start">
-                <h3 className="text-lg font-bold">{req.title}</h3>
+                <h3 className="text-sm font-semibold line-clamp-2">
+                  {req.title}
+                </h3>
 
-                <span className={`px-3 py-1 text-sm rounded-full ${statusColor[req.status]}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${statusColor[req.status]}`}
+                >
                   {req.status}
                 </span>
               </div>
 
-              <p className="text-gray-600 mt-2">{req.description}</p>
-
-              <div className="flex items-center gap-6 mt-4 text-gray-600">
-                <span className="flex items-center gap-2">
-                  <User size={18} /> {req.student}
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <Calendar size={18} /> {req.date}
-                </span>
+              {/* Student + Date */}
+              <div className="mt-3 space-y-2 text-gray-600 text-sm">
+                <p className="flex items-center gap-2">
+                  <User size={16} /> {req.student}
+                </p>
+                <p className="flex items-center gap-2">
+                  <Calendar size={16} /> {req.date}
+                </p>
               </div>
 
-              {req.appointment && (
-                <div className="mt-3 bg-blue-50 p-3 rounded-lg text-blue-700">
-                  <strong>Scheduled:</strong> {req.appointment}
-                </div>
-              )}
+              {/* SEE MORE */}
+              <button
+                onClick={() => openModal("view", req.id)}
+                className="mt-4 text-blue-600 hover:underline text-sm"
+              >
+                See more →
+              </button>
 
+              {/* Accept / Deny */}
               {req.status === "Pending" && (
-                <div className="flex gap-4 mt-6">
+                <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => openModal("accept", req.id)}
-                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg"
+                    className="bg-green-600 hover:bg-green-700 text-white py-1 px-3 text-sm rounded-lg"
                   >
                     Accept
                   </button>
 
                   <button
                     onClick={() => openModal("deny", req.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg"
+                    className="bg-red-600 hover:bg-red-700 text-white py-1 px-3 text-sm rounded-lg"
                   >
                     Deny
                   </button>
-                </div>
-              )}
-
-              {(req.status === "Approved" || req.status === "Denied") && (
-                <div className="mt-4 bg-gray-100 p-4 rounded-lg">
-                  <p className="font-semibold">Consultant Reason:</p>
-                  <p className="text-gray-700 mt-1">{req.reason}</p>
                 </div>
               )}
             </div>
@@ -178,57 +192,121 @@ const Requests = () => {
         )}
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       {modal.open && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-96">
-            <h3 className="text-xl font-bold mb-3">
-              {modal.type === "accept" ? "Accept Request" : "Deny Request"}
-            </h3>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-3">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-96 max-h-[90vh] overflow-y-auto">
+            {/* VIEW DETAILS MODAL */}
+            {modal.type === "view" && selectedRequest && (
+              <>
+                <h3 className="text-xl font-bold mb-3">Request Details</h3>
 
-            <p className="text-gray-600 mb-2">Provide Descriptions here:</p>
-            <textarea
-              className="w-full border rounded-lg p-3 h-24 outline-none"
-              placeholder="Write your description here..."
-              value={modal.reason}
-              onChange={(e) => setModal({ ...modal, reason: e.target.value })}
-            ></textarea>
+                <p className="font-semibold text-gray-800">
+                  {selectedRequest.title}
+                </p>
 
-            {modal.type === "accept" && (
-              <div className="mt-4">
-                <p className="text-gray-600 mb-2 font-semibold">Set Session Date & Time</p>
+                <p className="text-gray-600 mt-3">
+                  {selectedRequest.description}
+                </p>
 
-                <input
-                  type="date"
-                  className="w-full border rounded-lg p-2 mb-3"
-                  value={modal.sessionDate}
-                  onChange={(e) => setModal({ ...modal, sessionDate: e.target.value })}
-                />
+                <div className="mt-4 text-gray-700 space-y-2">
+                  <p>
+                    <strong>Student:</strong> {selectedRequest.student}
+                  </p>
+                  <p>
+                    <strong>Date:</strong> {selectedRequest.date}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {selectedRequest.status}
+                  </p>
 
-                <input
-                  type="time"
-                  className="w-full border rounded-lg p-2"
-                  value={modal.sessionTime}
-                  onChange={(e) => setModal({ ...modal, sessionTime: e.target.value })}
-                />
-              </div>
+                  {selectedRequest.appointment && (
+                    <p>
+                      <strong>Appointment:</strong>{" "}
+                      {selectedRequest.appointment}
+                    </p>
+                  )}
+
+                  {selectedRequest.reason && (
+                    <p>
+                      <strong>Consultant Reason:</strong>{" "}
+                      {selectedRequest.reason}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
             )}
 
-            <div className="flex justify-end gap-3 mt-5">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
+            {/* ACCEPT / DENY MODAL */}
+            {(modal.type === "accept" || modal.type === "deny") && (
+              <>
+                <h3 className="text-xl font-bold mb-3">
+                  {modal.type === "accept" ? "Accept Request" : "Deny Request"}
+                </h3>
 
-              <button
-                onClick={submitAction}
-                className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Submit
-              </button>
-            </div>
+                <p className="text-gray-600 mb-2">Provide description here:</p>
+
+                <textarea
+                  className="w-full border rounded-lg p-3 h-24 outline-none"
+                  placeholder="Write your description here..."
+                  value={modal.reason}
+                  onChange={(e) =>
+                    setModal({ ...modal, reason: e.target.value })
+                  }
+                ></textarea>
+
+                {modal.type === "accept" && (
+                  <div className="mt-4">
+                    <p className="text-gray-600 mb-2 font-semibold">
+                      Set Session Date & Time
+                    </p>
+
+                    <input
+                      type="date"
+                      className="w-full border rounded-lg p-2 mb-3"
+                      value={modal.sessionDate}
+                      onChange={(e) =>
+                        setModal({ ...modal, sessionDate: e.target.value })
+                      }
+                    />
+
+                    <input
+                      type="time"
+                      className="w-full border rounded-lg p-2"
+                      value={modal.sessionTime}
+                      onChange={(e) =>
+                        setModal({ ...modal, sessionTime: e.target.value })
+                      }
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 mt-5">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={submitAction}
+                    className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -7,16 +7,12 @@ from .views import (
     loginview,
     create_supervisor,
     list_supervisors,
-    # supervisor_login
+    
 )
 
 urlpatterns = [
-
-    # Authentication
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
-    # Profile management
     path('profile/', profile_view, name='profile'),
     path('change-password/', change_password_view, name='change_password'),
     path('create-supervisor/', create_supervisor, name='create-supervisor'),

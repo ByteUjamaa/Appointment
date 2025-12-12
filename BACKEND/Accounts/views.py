@@ -16,6 +16,12 @@ from django.shortcuts import get_object_or_404
 import json
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
+from .serializers import (
+    StudentSerializer,
+    SupervisorSerializer,
+    SupervisorLoginSerializer,
+    SupervisorProfileSerializer
+)
 
 from .models import Students, Supervisor
 from .serializers import (
@@ -30,16 +36,16 @@ from .serializers import (
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        refresh = self.get_token(self.user)
+        refresh = self.get_token(self.user) # type: ignore
         
         data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['user'] = {
-            'id': self.user.id,
-            'username': self.user.username,
-            'email': self.user.email,
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
+        data['access'] = str(refresh.access_token) # type: ignore
+        data['user'] = { # type: ignore
+            'id': self.user.id, # type: ignore
+            'username': self.user.username, # type: ignore
+            'email': self.user.email, # type: ignore
+            'first_name': self.user.first_name, # type: ignore
+            'last_name': self.user.last_name, # type: ignore
         }
         return data
 
@@ -69,16 +75,12 @@ def change_password_view(request):
     
     if serializer.is_valid():
         user = request.user
-        user.set_password(serializer.validated_data['new_password'])
+        user.set_password(serializer.validated_data['new_password']) # type: ignore
         user.save()
         update_session_auth_hash(request, user)
         return Response({"message": "Password updated successfully"})
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# Accounts/views.py
-
-
 
 
 #      COMBINED LOGIN (STUDENT + SUPERVISOR)
@@ -117,7 +119,7 @@ def loginview(request):
             # Generate tokens
             try:
                 refresh = RefreshToken.for_user(student)
-                access_token = str(refresh.access_token)
+                access_token = str(refresh.access_token) # type: ignore
                 refresh_token = str(refresh)
             except:
                 import secrets
@@ -165,7 +167,7 @@ def loginview(request):
             token_key = token.key
         except:
             refresh = RefreshToken.for_user(supervisor)
-            token_key = str(refresh.access_token)
+            token_key = str(refresh.access_token) # type: ignore
 
         redirect_to = "/supervisorDashboard/home"
 

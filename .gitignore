@@ -1,4 +1,5 @@
 # Python
+*.pyc
 __pycache__/
 *.py[cod]
 *$py.class
@@ -49,3 +50,7 @@ Thumbs.db
 BACKEND/db.sqlite3
 **/__pycache__/
 *.pyc
+
+
+# SQLite DB
+db.sqlite3
