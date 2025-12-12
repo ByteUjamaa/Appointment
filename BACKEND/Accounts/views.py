@@ -27,16 +27,16 @@ from .serializers import (
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        refresh = self.get_token(self.user)
+        refresh = self.get_token(self.user) # type: ignore
         
         data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['user'] = {
-            'id': self.user.id,
-            'username': self.user.username,
-            'email': self.user.email,
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
+        data['access'] = str(refresh.access_token) # type: ignore
+        data['user'] = { # type: ignore
+            'id': self.user.id, # type: ignore
+            'username': self.user.username, # type: ignore
+            'email': self.user.email, # type: ignore
+            'first_name': self.user.first_name, # type: ignore
+            'last_name': self.user.last_name, # type: ignore
         }
         return data
 
