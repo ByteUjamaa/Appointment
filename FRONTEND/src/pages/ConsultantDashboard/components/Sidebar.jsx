@@ -14,7 +14,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
       <ul className="space-y-4">
         <NavLink
-          to="/consultantDashboard/home"
+          to="home"
           className={({ isActive }) =>
             `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
           }
@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </NavLink>
 
         <NavLink
-          to="/consultantDashboard/requests"
+          to="requests"
           className={({ isActive }) =>
             `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
           }
@@ -32,7 +32,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </NavLink>
 
         <NavLink
-          to="/consultantDashboard/reports"
+          to="reports"
           className={({ isActive }) =>
             `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
           }
@@ -41,7 +41,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </NavLink>
 
         <NavLink
-          to="/consultantDashboard/Consultantprofile"
+          to="ConsultantProfile"
           className={({ isActive }) =>
             `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
           }
