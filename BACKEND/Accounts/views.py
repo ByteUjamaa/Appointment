@@ -16,6 +16,12 @@ from django.shortcuts import get_object_or_404
 import json
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
+from .serializers import (
+    StudentSerializer,
+    SupervisorSerializer,
+    SupervisorLoginSerializer,
+    SupervisorProfileSerializer
+)
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -60,24 +66,12 @@ def change_password_view(request):
     
     if serializer.is_valid():
         user = request.user
-        user.set_password(serializer.validated_data['new_password'])
+        user.set_password(serializer.validated_data['new_password']) # type: ignore
         user.save()
         update_session_auth_hash(request, user)
         return Response({"message": "Password updated successfully"})
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# Accounts/views.py
-
-
-
-from .models import Students, Supervisor
-from .serializers import (
-    StudentSerializer,
-    SupervisorSerializer,
-    SupervisorLoginSerializer,
-    SupervisorProfileSerializer
-)
 
 
 #      COMBINED LOGIN (STUDENT + SUPERVISOR)
@@ -116,7 +110,7 @@ def loginview(request):
             # Generate tokens
             try:
                 refresh = RefreshToken.for_user(student)
-                access_token = str(refresh.access_token)
+                access_token = str(refresh.access_token) # type: ignore
                 refresh_token = str(refresh)
             except:
                 import secrets
@@ -162,7 +156,7 @@ def loginview(request):
             token_key = token.key
         except:
             refresh = RefreshToken.for_user(supervisor)
-            token_key = str(refresh.access_token)
+            token_key = str(refresh.access_token) # type: ignore
 
         redirect_to = "/supervisorDashboard/home"
 

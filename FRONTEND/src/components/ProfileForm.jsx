@@ -104,7 +104,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-3 w-full"
               required
-              disabled={!!initialData.username} // Username cannot be changed
+              disabled={!!initialData.username}
             />
           </div>
 
@@ -129,7 +129,6 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             />
           </div>
 
-          {/* STUDENT ONLY FIELDS */}
           {isStudent && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <select
@@ -158,7 +157,6 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             </div>
           )}
 
-          {/* TEACHER ONLY FIELDS - Consultation Days */}
           {!isStudent && (
             <div>
               <label className="block text-sm text-gray-600 mb-2">
@@ -180,6 +178,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
           )}
 
           <div className="flex gap-4 pt-4">
+            {/* CORRECT Cancel button styling */}
             <button
               type="button"
               onClick={onCancel}
@@ -188,6 +187,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             >
               Cancel
             </button>
+
             <button 
               type="submit"
               disabled={loading}
