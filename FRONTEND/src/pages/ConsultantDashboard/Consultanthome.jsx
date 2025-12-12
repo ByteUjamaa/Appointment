@@ -3,7 +3,7 @@ import StatCard from "./components/StatCard";
 import { Clock, CheckCircle, XCircle, TrendingUp } from "lucide-react";
 import { getDashboardStats, getRecentActivity } from "../../api/consultantApi";
 
-export default function Home() {
+export default function Consultanthome() {
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
 
