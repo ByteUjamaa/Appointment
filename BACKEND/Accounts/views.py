@@ -17,6 +17,15 @@ import json
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
 
+from .models import Students, Supervisor
+from .serializers import (
+    StudentSerializer,
+    SupervisorSerializer,
+    SupervisorLoginSerializer,
+    SupervisorProfileSerializer
+)
+
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -71,14 +80,6 @@ def change_password_view(request):
 
 
 
-from .models import Students, Supervisor
-from .serializers import (
-    StudentSerializer,
-    SupervisorSerializer,
-    SupervisorLoginSerializer,
-    SupervisorProfileSerializer
-)
-
 
 #      COMBINED LOGIN (STUDENT + SUPERVISOR)
 
@@ -122,10 +123,12 @@ def loginview(request):
                 import secrets
                 access_token = secrets.token_urlsafe(32)
                 refresh_token = secrets.token_urlsafe(32)
-
+            
             # first_login redirect
             if student.first_login:
                 redirect_path = "/profile"
+                student.first_login = False
+                student.save()
             else:
                 redirect_path = "/studentDashboard/home"
 
