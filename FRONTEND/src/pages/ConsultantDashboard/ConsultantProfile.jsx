@@ -4,7 +4,7 @@ import ChangePassword from "../../components/ChangePassword"; // Import it
 
 const ConsultantProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false); // Add this
+  const [showChangePassword, setShowChangePassword] = useState(false);
   
   const profile = {
     full_name: "Dr. Jane Smith",
@@ -14,8 +14,28 @@ const ConsultantProfile = () => {
     consultation_days: ["Monday", "Wednesday", "Friday"]
   };
 
+  const handleSaveProfile = async (updatedData) => {
+    console.log("Saving profile:", updatedData);
+    // Here you would make an API call
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API
+    // Update your profile data here
+    setIsEditing(false); // Go back to view mode
+  };
+
+  const handleCancelEdit = () => {
+    console.log("Cancelling edit");
+    setIsEditing(false); // This will exit edit mode
+  };
+
   if (isEditing) {
-    return <ProfileForm role="teacher" mode="edit" />;
+    return (
+      <ProfileForm 
+        role="teacher" 
+        initialData={profile} // Pass the profile data
+        onSave={handleSaveProfile} // Pass save handler
+        onCancel={handleCancelEdit} // ⬅️ THIS IS MISSING - ADD THIS!
+      />
+    );
   }
 
   return (
@@ -58,12 +78,11 @@ const ConsultantProfile = () => {
 
         <div className="mt-6 space-y-3">
           <button 
-            onClick={() => setShowChangePassword(true)} // Open modal
+            onClick={() => setShowChangePassword(true)}
             className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition"
           >
             Change Password
           </button>
-    
         </div>
       </div>
 

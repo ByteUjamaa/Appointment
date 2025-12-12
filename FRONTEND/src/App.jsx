@@ -1,5 +1,4 @@
 
-// App.jsx - ConsultantProfile
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -12,39 +11,48 @@ import Home from './pages/studentDashboard/Home';
 import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
 import Profile from './pages/studentDashboard/Profile';
-import './styles/App.css';
 
-// Admin Pages
+// Consultant Dashboard
+import Dashboard from './pages/ConsultantDashboard/Dashboard';
+import Consultanthome from './pages/ConsultantDashboard/Consultanthome';
+import Requests from './pages/ConsultantDashboard/Requests';
+// import Reports from './pages/ConsultantDashboard/Reports';
+import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
+
+// Admin Layout & Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { Supervisors } from './pages/admin/supervisors/Supervisor';
 import { Appointment } from './pages/admin/appointments/Appointment';
 
-// Consultant Dashboard
-import Dashboard from './pages/ConsultantDashboard/Dashboard';
-import ConsultantHome from './pages/ConsultantDashboard/Home';
-import ConsultantRequests from './pages/ConsultantDashboard/Requests';
-import ConsultantReports from './pages/ConsultantDashboard/Reports';
-import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
-
-
+import './styles/App.css';
 
 function App() {
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
         <Routes>
+
           {/* Auth Routes */}
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
 
           {/* Student Dashboard - Nested Routes */}
           <Route path="/studentDashboard/*" element={<StudentDashboard />}>
-            <Route index element={<Navigate to="home" replace />} />
+            <Route index element={<Navigate to="Home" replace />} />
             <Route path="home" element={<Home />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="reports" element={<Reports />} />
             <Route path="profile" element={<Profile />} />
           </Route>
+
+          {/* Consultant Dashboard */}
+        <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
+          <Route index element={<Navigate to="Consultanthome" replace />} />
+          <Route path="Consultanthome" element={<Consultanthome />} />
+          <Route path="requests" element={<Requests />} />
+          {/* <Route path="reports" element={<Reports />} /> */}
+          <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+        </Route>
 
           {/* Admin Dashboard - Nested Routes */}
           <Route path="/admin" element={<AdminDashboard />}>
@@ -53,23 +61,13 @@ function App() {
             <Route path="appointment-types" element={<Appointment />} />
           </Route>
 
-   {/* Consultant Dashboard - Nested Routes */}
-<Route path="/ConsultantDashboard/*" element={<Dashboard />}>
-  <Route index element={<Navigate to="home" replace />} />
-  <Route path="home" element={<ConsultantHome />} />
-  <Route path="requests" element={<ConsultantRequests />} />
-  <Route path="reports" element={<ConsultantReports />} />
-  <Route path="ConsultantProfile" element={<ConsultantProfile />} />
-</Route>
-
-
-
-          {/* Redirect old routes */}
+          {/* Redirects */}
           <Route path="/profile" element={<Navigate to="/studentDashboard/profile" replace />} />
           <Route path="/student/dashboard" element={<Navigate to="/studentDashboard/home" replace />} />
-
-          {/* 404 Fallback */}
+          
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </div>
     </Router>
@@ -77,4 +75,3 @@ function App() {
 }
 
 export default App;
-

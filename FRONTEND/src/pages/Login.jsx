@@ -25,7 +25,7 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/Accounts/login/', {
+      const response = await api.post('/accounts/login/', {
         username: formData.username,
         password: formData.password,
       });
@@ -43,8 +43,8 @@ const Login = () => {
           : '/studentDashboard/home';
       } else if (response.data.role === 'supervisor') {
         redirectPath = response.data.first_login
-          ? '/studentDashboard/profile'
-          : '/studentDashboard/home';
+          ? '/ConsultantDashboard/ConsultantProfile'
+          : '/ConsultantDashboard/Consultanthome';
       }
 
       navigate(redirectPath);

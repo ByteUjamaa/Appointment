@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           style={{ top: "72px" }}
         />
       )}
+              
 
       {/* SIDEBAR BELOW HEADER */}
       <div
