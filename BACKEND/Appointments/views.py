@@ -1,7 +1,9 @@
 from rest_framework.decorators import api_view,APIView
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import AppointmentType, Teacher, Appointment, AppointmentResponse
-from .serializers import AppointmentTypeSerializer, TeacherSerializer, AppointmentSerializer, AppointmentResponseSerializer
+from .serializers import AppointmentTypeSerializer, TeacherSerializer, AppointmentSerializer, AppointmentResponseSerializer, AppointmentResponseCreateSerializer
 from django.db.models import Count
 
 
@@ -80,7 +82,7 @@ def appointment_status_count(request):
     return Response(data, status=200)
 
 class AppointmentResponseView(APIView):
-   # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, appointment_id):
         # Check if logged-in user is a teacher

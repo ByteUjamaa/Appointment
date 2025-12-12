@@ -126,25 +126,43 @@ def loginview(request):
                 access_token = secrets.token_urlsafe(32)
                 refresh_token = secrets.token_urlsafe(32)
             
-            # first_login redirect
-            if student.first_login:
-                redirect_path = "/profile"
-                student.first_login = False
-                student.save()
-            else:
-                redirect_path = "/studentDashboard/home"
+            # # first_login redirect
+            # if student.first_login:
+            #     redirect_path = "/profile"
+            #     student.first_login = False
+            #     student.save()
+            # else:
+            #     redirect_path = "/studentDashboard/home"
+            
+            # Backend (Django)
+            redirect_path = "/studentDashboard/profile" if student.first_login else "/studentDashboard/home"
 
+# Send first_login in response
+            first_login_status = student.first_login
+
+# Only then update
+            if student.first_login:
+             student.first_login = False
+            student.save()
+
+# Response
             return Response({
-                "role": "student",
-                "message": "Student login successful",
-                "token": access_token,
-                "refresh_token": refresh_token,
-                "user": StudentSerializer(student).data,
-                "redirect_path": redirect_path
-            }, status=200)
+                "role": student.role,
+                "first_login": first_login_status,
+                "redirect_path": redirect_path,
+            })
+
+            # return Response({
+            #     "role": "student",
+            #     "message": "Student login successful",
+            #     "token": access_token,
+            #     "refresh_token": refresh_token,
+            #     "user": StudentSerializer(student).data,
+            #     "redirect_path": redirect_path
+            # }, status=200)
 
     except Students.DoesNotExist:
-        pass  # continue to supervisor login
+        pass  
 
     
     # TRY SUPERVISOR LOGIN
@@ -168,6 +186,12 @@ def loginview(request):
         except:
             refresh = RefreshToken.for_user(supervisor)
             token_key = str(refresh.access_token) # type: ignore
+
+        # first_login redirect
+        if supervisor.first_login:
+            redirect_to = "/ConsultantDashboard/ConsultantProfile"
+            supervisor.first_login = False
+            supervisor.save()
 
         redirect_to = "/supervisorDashboard/home"
 
