@@ -27,7 +27,6 @@ import ConsultantReports from './pages/ConsultantDashboard/Reports';
 import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
 
 
-import './styles/App.css';
 
 function App() {
   return (
@@ -54,13 +53,15 @@ function App() {
             <Route path="appointment-types" element={<Appointment />} />
           </Route>
 
-          {/* Consultant Dashboard Routes */}
-          <Route path="/ConsultantDashboard" element={<Dashboard />} />
-          <Route index element={<Navigate to="home" replace />} />
-          <Route path="home" element={<ConsultantHome />} />
-          <Route path="requests" element={<ConsultantRequests />} />
-          <Route path="reports" element={<ConsultantReports />} />
-          <Route path="./ConsultantDashboard/Consultantprofile" element={<ConsultantProfile />} />
+   {/* Consultant Dashboard - Nested Routes */}
+<Route path="/ConsultantDashboard/*" element={<Dashboard />}>
+  <Route index element={<Navigate to="home" replace />} />
+  <Route path="home" element={<ConsultantHome />} />
+  <Route path="requests" element={<ConsultantRequests />} />
+  <Route path="reports" element={<ConsultantReports />} />
+  <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+</Route>
+
 
 
           {/* Redirect old routes */}
