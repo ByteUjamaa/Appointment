@@ -15,7 +15,7 @@ const Header = ({ isOpen, setIsOpen }) => {
       </button>
 
       <h2 className="text-lg md:text-2xl font-bold text-gray-900">
-        Consultant Consultation Portal
+        Consultant Portal
       </h2>
 
       <div className="flex gap-4">
