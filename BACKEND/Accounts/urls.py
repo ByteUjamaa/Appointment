@@ -1,19 +1,31 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
-    loginview,
-    change_password,
-    check_profile_access,
-    check_dashboard_access,
+    MyTokenObtainPairView,
     profile_view,
+    change_password_view,
+    loginview,
+    check_dashboard_access,
+
     create_supervisor,
-    list_supervisors
+    list_supervisors,
+    # supervisor_login
 )
+
 urlpatterns = [
-    path("login/", loginview, name="student-login"),
-    path("change-password/", change_password, name="student-change-password"),
-    path("check-profile-access/", check_profile_access, name="check-profile-access"),
-    path("check-dashboard-access/", check_dashboard_access, name="check-dashboard-access"),
-    path("profile/", profile_view, name="student-profile"),
+
+    # Authentication
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Profile management
+    path('profile/', profile_view, name='profile'),
+    path('change-password/', change_password_view, name='change_password'),
+    path('login/', loginview, name='student-login'),
+    path('check-dashboard-access/', check_dashboard_access, name='check-dashboard-access'),
     path('create-supervisor/', create_supervisor, name='create-supervisor'),
     path('supervisors/', list_supervisors, name='supervisors-list'),
+
+    path("login/", loginview, name="Portal-login", ),
+    
 ]
