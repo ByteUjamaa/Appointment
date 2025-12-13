@@ -86,6 +86,7 @@ def change_password_view(request):
 #      COMBINED LOGIN (STUDENT + SUPERVISOR)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def loginview(request):
 
     # Fix: handle string body from React
@@ -108,6 +109,10 @@ def loginview(request):
     try:
         student = Students.objects.get(username=username)
 
+        if not student.password.startswith(("pbkdf2_", "bcrypt", "argon2")):
+            student.set_password(student.password)
+            student.save()
+
         # If password is hashed
         if student.password.startswith(('pbkdf2_', 'bcrypt', 'argon2')):
             valid_password = check_password(password, student.password)
@@ -126,14 +131,7 @@ def loginview(request):
                 access_token = secrets.token_urlsafe(32)
                 refresh_token = secrets.token_urlsafe(32)
             
-            # # first_login redirect
-            # if student.first_login:
-            #     redirect_path = "/profile"
-            #     student.first_login = False
-            #     student.save()
-            # else:
-            #     redirect_path = "/studentDashboard/home"
-            
+         
             # Backend (Django)
             redirect_path = "/studentDashboard/profile" if student.first_login else "/studentDashboard/home"
 
@@ -152,14 +150,7 @@ def loginview(request):
                 "redirect_path": redirect_path,
             })
 
-            # return Response({
-            #     "role": "student",
-            #     "message": "Student login successful",
-            #     "token": access_token,
-            #     "refresh_token": refresh_token,
-            #     "user": StudentSerializer(student).data,
-            #     "redirect_path": redirect_path
-            # }, status=200)
+           
 
     except Students.DoesNotExist:
         pass  
