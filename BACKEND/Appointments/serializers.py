@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import AppointmentType, Teacher, Appointment, AppointmentResponse
+from .models import AppointmentType,Appointment, AppointmentResponse
+from django.conf import settings 
 
 class AppointmentTypeSerializer(serializers.ModelSerializer):
     value = serializers.CharField(source='name', read_only=True)  
@@ -10,13 +11,7 @@ class AppointmentTypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'value', 'label']
 
 
-class TeacherSerializer(serializers.ModelSerializer):
-    value = serializers.CharField(source='user.username', read_only=True)
-    label = serializers.CharField(source='user.username', read_only=True)
 
-    class Meta:
-        model = Teacher
-        fields = ['id', 'value', 'label', 'specialization', 'user']
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -27,7 +22,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'student',
-            'teacher',
+            'supervisor',
             'appointment_type',
             'date',
             'time',
@@ -36,6 +31,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'status_label',
             'created_at'
         ]
+        read_only_fields = ['student', 'status', 'created_at']
+
+
 class AppointmentResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentResponse
