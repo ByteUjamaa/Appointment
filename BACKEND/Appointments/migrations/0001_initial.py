@@ -2,6 +2,8 @@
 
 import django.db.models.deletion
 from django.conf import settings
+import django.db.models.deletion
+from django.conf import settings
 from django.db import migrations, models
 
 
@@ -11,10 +13,40 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
+            name='AppointmentType',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(choices=[('Academic', 'Academic'), ('Project', 'Project'), ('Consultation', 'Consultation')], max_length=50, unique=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Appointment',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateField()),
+                ('time', models.TimeField()),
+                ('description', models.TextField()),
+                ('status', models.CharField(choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'), ('Rejected', 'Rejected'), ('Completed', 'Completed')], default='Pending', max_length=20)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointments', to=settings.AUTH_USER_MODEL)),
+                ('appointment_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Appointments.appointmenttype')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Teacher',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('specialization', models.CharField(max_length=100)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='AppointmentResponse',
             name='AppointmentType',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -52,7 +84,18 @@ class Migration(migrations.Migration):
                 ('appointment', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='response', to='Appointments.appointment')),
                 ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointment_responses', to=settings.AUTH_USER_MODEL)),
                 ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointment_responses', to='Appointments.teacher')),
+                ('status', models.CharField(choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'), ('Rejected', 'Rejected'), ('Completed', 'Completed')], default='Pending', max_length=20)),
+                ('supervisor_comment', models.TextField(blank=True, null=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('appointment', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='response', to='Appointments.appointment')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointment_responses', to=settings.AUTH_USER_MODEL)),
+                ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointment_responses', to='Appointments.teacher')),
             ],
+        ),
+        migrations.AddField(
+            model_name='appointment',
+            name='teacher',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointments', to='Appointments.teacher'),
         ),
         migrations.AddField(
             model_name='appointment',

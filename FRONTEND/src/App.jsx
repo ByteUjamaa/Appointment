@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -13,6 +14,10 @@ import Profile from './pages/studentDashboard/Profile';
 
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
+import Consultanthome from './pages/ConsultantDashboard/Consultanthome';
+import Requests from './pages/ConsultantDashboard/Requests';
+// import Reports from './pages/ConsultantDashboard/Reports';
+import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
 
 // Admin Layout & Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -33,7 +38,7 @@ function App() {
 
           {/* Student Dashboard - Nested Routes */}
           <Route path="/studentDashboard/*" element={<StudentDashboard />}>
-            <Route index element={<Navigate to="home" replace />} />
+            <Route index element={<Navigate to="Home" replace />} />
             <Route path="home" element={<Home />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="reports" element={<Reports />} />
@@ -42,12 +47,12 @@ function App() {
 
           {/* Consultant Dashboard */}
         <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
-  <Route index element={<Navigate to="home" replace />} />
-  <Route path="home" element={<ConsultantHome />} />
-  <Route path="requests" element={<ConsultantRequests />} />
-  <Route path="reports" element={<ConsultantReports />} />
-  <Route path="ConsultantProfile" element={<ConsultantProfile />} />
-</Route>
+          <Route index element={<Navigate to="Consultanthome" replace />} />
+          <Route path="Consultanthome" element={<Consultanthome />} />
+          <Route path="requests" element={<Requests />} />
+          {/* <Route path="reports" element={<Reports />} /> */}
+          <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+        </Route>
 
           {/* Admin Dashboard - Nested Routes */}
           <Route path="/admin" element={<AdminDashboard />}>

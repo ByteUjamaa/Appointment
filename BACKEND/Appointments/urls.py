@@ -4,7 +4,9 @@ from .views import (
     create_appointment,
     list_appointments,
     update_appointment_status,
-    appointment_status_count
+    appointment_status_count,
+    post
+   
 )
 
 urlpatterns = [
@@ -12,8 +14,7 @@ urlpatterns = [
     path("types/", list_appointment_types),
     path("create/", create_appointment),
     path("", list_appointments),
-
     path("appointments/<int:pk>/update-status/", update_appointment_status),
-
     path("appointments/status-count/", appointment_status_count),
+    path("response/" ,post, name="appointment-response")
 ]

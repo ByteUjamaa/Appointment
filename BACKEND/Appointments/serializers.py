@@ -39,3 +39,8 @@ class AppointmentResponseSerializer(serializers.ModelSerializer):
         model = AppointmentResponse
         fields = "__all__"
         read_only_fields = ["appointment", "updated_at"]
+
+class AppointmentResponseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointmentResponse
+        fields = ["status", "supervisor_comment"]
