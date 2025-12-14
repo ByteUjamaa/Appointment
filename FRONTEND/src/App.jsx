@@ -7,9 +7,10 @@ import Login from './pages/Login';
 // Student Pages
 import StudentDashboard from './pages/studentDashboard/StudentDashboard';
 import Home from './pages/studentDashboard/Home';
-import Appointments from './pages/studentDashboard/Appointments';
+// import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
 import Profile from './pages/studentDashboard/Profile';
+import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
 
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
@@ -20,6 +21,9 @@ import { Supervisors } from './pages/admin/supervisors/Supervisor';
 import { Appointment } from './pages/admin/appointments/Appointment';
 
 import './styles/App.css';
+import AppointmentService from './api/appointmentServices';
+import Appointments from './pages/studentDashboard/Appointments';
+import Requests from './pages/ConsultantDashboard/Requests';
 
 function App() {
   return (
@@ -42,11 +46,11 @@ function App() {
 
           {/* Consultant Dashboard */}
         <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
-  <Route index element={<Navigate to="home" replace />} />
-  <Route path="home" element={<ConsultantHome />} />
-  <Route path="requests" element={<ConsultantRequests />} />
-  <Route path="reports" element={<ConsultantReports />} />
-  <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+        <Route index element={<Navigate to="home" replace />} />
+       <Route path="home" element={<Home />} />
+       <Route path="requests" element={<Requests />} />
+       <Route path="reports" element={<Reports />} />
+      <Route path="ConsultantProfile" element={<ConsultantProfile />} />
 </Route>
 
           {/* Admin Dashboard - Nested Routes */}
