@@ -7,10 +7,9 @@ const AppointmentService = {
 
   // GET /teachers/
   getTeachers: () => axiosInstance.get('/teachers/').then(r => r.data),
-  createTeachers:() => axiosInstance.post('/teachers/create').then(r => r.data),
 
   // POST /appointments/create/
-  createAppointment: (data) => axiosInstance.post('/appointments/create/', data).then(r => r.data),
+  createAppointment: (data) => axiosInstance.post('/appointments/create/').then(r => r.data),
 
   // GET /appointments/
   getAppointments: () => axiosInstance.get('/appointments/').then(r => r.data),

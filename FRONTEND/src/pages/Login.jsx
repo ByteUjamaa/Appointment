@@ -25,7 +25,7 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/Accounts/login/', {
+      const response = await api.post('/accounts/login/', {
         username: formData.username,
         password: formData.password,
       });
@@ -39,15 +39,17 @@ const Login = () => {
       let redirectPath = '/';
       if (response.data.role === 'student') {
         redirectPath = response.data.first_login
-          ? '/studentDashboard/profile'
+          ? '/profile'
           : '/studentDashboard/home';
       } else if (response.data.role === 'supervisor') {
         redirectPath = response.data.first_login
-          ? '/studentDashboard/profile'
-          : '/studentDashboard/home';
+          ? '/ConsultantDashboard/ConsultantProfile'
+          : '/ConsultantDashboard/Consultanthome';
       }
+      // const redirectPath = response.data.redirect_path;
+       navigate(redirectPath);
 
-      navigate(redirectPath);
+      // navigate(redirectPath);
 
     } catch (err) {
       if (err.response) {
