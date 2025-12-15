@@ -32,8 +32,6 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_appointments', to='Accounts.studentprofile')),
                 ('supervisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='supervisor_appointments', to='Accounts.supervisorprofile')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_appointments', to='Accounts.studentprofile')),
-                ('supervisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='supervisor_appointments', to='Accounts.supervisorprofile')),
                 ('appointment_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Appointments.appointmenttype')),
             ],
         ),
@@ -48,8 +46,6 @@ class Migration(migrations.Migration):
                 ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_responses', to='Accounts.studentprofile')),
                 ('supervisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='supervisor_responses', to='Accounts.supervisorprofile')),
             ],
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_responses', to='Accounts.studentprofile')),
-                ('supervisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='supervisor_responses', to='Accounts.supervisorprofile')),
             ],
         ),
     ]
