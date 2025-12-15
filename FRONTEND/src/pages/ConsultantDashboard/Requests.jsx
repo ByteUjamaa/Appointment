@@ -15,6 +15,7 @@ const Requests = () => {
       status: "Pending",
       reason: "",
     },
+  
     {
       id: 2,
       title: "Database Architecture Review",
@@ -25,6 +26,7 @@ const Requests = () => {
       status: "Pending",
       reason: "",
     },
+
   ]);
 
   const [modal, setModal] = useState({
