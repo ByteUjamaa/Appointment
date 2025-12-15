@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings 
+from Accounts.models import StudentProfile, SupervisorProfile
 
 class AppointmentType(models.Model):
 
@@ -14,18 +15,8 @@ class AppointmentType(models.Model):
     def __str__(self):
         return self.name
 
-class Teacher(models.Model):
-
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE
-    )
-
-    specialization = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.user.username
     
+
 
 class Appointment(models.Model):
 
@@ -37,15 +28,15 @@ class Appointment(models.Model):
     ]
 
     student = models.ForeignKey(
-        User,
+        StudentProfile,
         on_delete=models.CASCADE,
-        related_name="appointments"
+        related_name="student_appointments"
     )
 
-    teacher = models.ForeignKey(
-        Teacher,
+    supervisor = models.ForeignKey(
+        SupervisorProfile,
         on_delete=models.CASCADE,
-        related_name="appointments"
+        related_name="supervisor_appointments"
     )
 
     appointment_type = models.ForeignKey(
@@ -55,7 +46,6 @@ class Appointment(models.Model):
 
     date = models.DateField()
     time = models.TimeField()
-
     description = models.TextField()
 
     status = models.CharField(
@@ -67,7 +57,8 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.student.username} -> {self.teacher.user.username}"
+        return f"{self.student.first_name} -> {self.supervisor.first_name}"  # type: ignore
+
 
 
 class AppointmentResponse(models.Model):    
@@ -78,15 +69,15 @@ class AppointmentResponse(models.Model):
     )
     
     student = models.ForeignKey(
-        User,
+        StudentProfile,
         on_delete=models.CASCADE,
-        related_name="appointment_responses"
+        related_name="student_responses"
     )
     
-    teacher = models.ForeignKey(
-        Teacher,
+    supervisor = models.ForeignKey(
+        SupervisorProfile,
         on_delete=models.CASCADE,
-        related_name="appointment_responses"
+        related_name="supervisor_responses"
     )
 
     STATUS_CHOICES = [
