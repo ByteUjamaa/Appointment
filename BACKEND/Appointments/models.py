@@ -57,7 +57,7 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.student.first_name} -> {self.supervisor.first_name}"  # type: ignore
+        return f"{self.student} -> {self.supervisor}"  # type: ignore
 
 
 
