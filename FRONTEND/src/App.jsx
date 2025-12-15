@@ -11,8 +11,6 @@ import Home from './pages/studentDashboard/Home';
 // import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
 import Profile from './pages/studentDashboard/Profile';
-import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
-
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
 import Consultanthome from './pages/ConsultantDashboard/Consultanthome';
@@ -26,9 +24,9 @@ import { Supervisors } from './pages/admin/supervisors/Supervisor';
 import { Appointment } from './pages/admin/appointments/Appointment';
 
 import './styles/App.css';
-import AppointmentService from './api/appointmentServices';
+// import AppointmentService from './api/appointmentServices';
 import Appointments from './pages/studentDashboard/Appointments';
-import Requests from './pages/ConsultantDashboard/Requests';
+
 
 function App() {
   return (
