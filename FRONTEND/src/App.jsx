@@ -10,6 +10,7 @@ import StudentDashboard from './pages/studentDashboard/StudentDashboard';
 import Home from './pages/studentDashboard/Home';
 // import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
+// import Supervisors from './pages/studentDashboard/SupervisorsStudent';
 import Profile from './pages/studentDashboard/Profile';
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
@@ -26,6 +27,7 @@ import { Appointment } from './pages/admin/appointments/Appointment';
 import './styles/App.css';
 // import AppointmentService from './api/appointmentServices';
 import Appointments from './pages/studentDashboard/Appointments';
+import SupervisorsStudent from './pages/studentDashboard/SupervisorsStudent';
 
 
 function App() {
@@ -44,6 +46,8 @@ function App() {
             <Route path="home" element={<Home />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="supervisors" element={<SupervisorsStudent />} />
+
             <Route path="profile" element={<Profile />} />
           </Route>
 

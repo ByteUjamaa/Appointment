@@ -13,6 +13,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: "Home", path: "/studentDashboard/home", icon: <Home size={20} /> },
     { name: "Appointments", path: "/studentDashboard/appointments", icon: <CalendarCheck size={20} /> },
     { name: "Reports", path: "/studentDashboard/reports", icon: <BarChart3 size={20} /> },
+    { name: "Supervisors", path: "/studentDashboard/supervisors", icon: <BarChart3 size={20} /> },
     { name: "Profile", path: "/studentDashboard/profile", icon: <User size={20} /> },
   ];
 
@@ -30,7 +31,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* SIDEBAR BELOW HEADER */}
       <div
-        className={`fixed left-0 h-screen w-64 bg-white shadow-lg p-6 z-50
+        className={`fixed left-0 h-screen w-64 bg-white dark:bg-gray-950 shadow-lg p-6 z-50
         transition-transform duration-300
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
@@ -49,7 +50,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   ${
                     isActive
                       ? "bg-blue-600 text-white"
-                      : "text-gray-700 hover:bg-gray-200"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800"
                   }`
                 }
               >

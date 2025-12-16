@@ -41,10 +41,11 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "year_of_study",
         ]
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        user_data = validated_data.pop("user", None)
 
         # Update User table
-        for attr, value in user_data.items():
+        if user_data: 
+         for attr, value in user_data.items():
             setattr(instance.user, attr, value)
 
         instance.user.first_login = False
@@ -82,10 +83,11 @@ class SupervisorProfileSerializer(serializers.ModelSerializer):
         ]
     
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        user_data = validated_data.pop("user", None)
 
         # Update User info
-        for attr, value in user_data.items():
+        if user_data:
+         for attr, value in user_data.items():
             setattr(instance.user, attr, value)
 
         instance.user.first_login = False

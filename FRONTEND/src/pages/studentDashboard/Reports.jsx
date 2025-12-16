@@ -1,6 +1,6 @@
 import { Calendar, Notebook, Timer } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 
 /* MOCK TO API SWITCH */
 const USE_MOCK_DATA = true;
@@ -130,7 +130,7 @@ export default function Reports() {
   const [openModal, setOpenModal] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [appointments, setAppointments] = useState([]);
-  const navigate = useNavigate();
+
 
   /* LOAD appointments */
   useEffect(() => {
@@ -205,8 +205,10 @@ export default function Reports() {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Reports</h1>
-          <p className="text-gray-500">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Reports
+          </h1>
+          <p className="text-gray-500 dark:text-gray-300">
             Create and manage your consultation and research reports
           </p>
         </div>
@@ -221,16 +223,16 @@ export default function Reports() {
 
       {/* SUMMARY CARDS */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="border border-blue-400 rounded-xl p-4">
-          <p className="text-gray-500">Draft</p>
+        <div className="border border-blue-400 dark:border-blue-600 rounded-xl p-4 bg-white dark:bg-gray-900">
+          <p className="text-gray-500 dark:text-gray-300">Draft</p>
           <p className="text-2xl font-bold">{draftCount}</p>
         </div>
-        <div className="border border-blue-400 rounded-xl p-4">
-          <p className="text-gray-500">Submitted</p>
+        <div className="border border-blue-400 dark:border-blue-600 rounded-xl p-4 bg-white dark:bg-gray-900">
+          <p className="text-gray-500 dark:text-gray-300">Submitted</p>
           <p className="text-2xl font-bold">{submittedCount}</p>
         </div>
-        <div className="border border-blue-400 rounded-xl p-4">
-          <p className="text-gray-500">Reviewed</p>
+        <div className="border border-blue-400 dark:border-blue-600 rounded-xl p-4 bg-white dark:bg-gray-900">
+          <p className="text-gray-500 dark:text-gray-300">Reviewed</p>
           <p className="text-2xl font-bold">{reviewedCount}</p>
         </div>
       </div>
