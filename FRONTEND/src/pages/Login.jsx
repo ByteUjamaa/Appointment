@@ -33,7 +33,7 @@ const Login = () => {
       });
 
 
-      // 🔐 SAVE TOKENS
+      // SAVE TOKENS
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
       }

@@ -15,6 +15,10 @@ class AppointmentTypeSerializer(serializers.ModelSerializer):
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(
+        source='student.user.get_first_name',
+        read_only=True
+    )
     status_label = serializers.CharField(source='status', read_only=True)
 
     class Meta:
@@ -22,6 +26,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'student',
+            "student_name",
             'supervisor',
             'appointment_type',
             'date',

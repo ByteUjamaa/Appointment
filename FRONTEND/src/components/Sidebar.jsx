@@ -2,13 +2,16 @@ import {
   BarChart3,
   CalendarCheck,
   Home,
-  LogOut,
   User,
 } from "lucide-react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom"; //NavLink is the special version of Link and automatically knows which route is active and its perfect for navigation
 
+
+
+//this is the functional compoennt that receives props isOPpen and setIsOPen
 const Sidebar = ({ isOpen, setIsOpen }) => {
+  //navigation items
   const navItems = [
     { name: "Home", path: "/studentDashboard/home", icon: <Home size={20} /> },
     { name: "Appointments", path: "/studentDashboard/appointments", icon: <CalendarCheck size={20} /> },
@@ -19,6 +22,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   return (
     <>
+
+    {/* shows the semi transparent overly when the sidebar is opened and clicking it closes the sidebar lg:hidden makes this visible only on samll screens */}
       {/*  BACKDROP (BELOW HEADER) */}
       {isOpen && (
         <div
@@ -61,12 +66,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ))}
         </ul>
 
-        <div className="mt-10 pt-5 border-t">
-          <button className="flex items-center gap-3 text-red-600 font-semibold">
-            <LogOut size={20} />
-            Logout
-          </button>
-        </div>
       </div>
     </>
   );

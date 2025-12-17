@@ -356,7 +356,7 @@ def consultant_requests(request):
         )
 
     qs = Appointment.objects.filter(
-        supervisor=supervisor_profile, status="Pending"
+        supervisor=supervisor_profile,  #status="Pending"
     ).order_by("date", "time")
     serializer = AppointmentSerializer(qs, many=True)
     return Response(serializer.data, status=200)

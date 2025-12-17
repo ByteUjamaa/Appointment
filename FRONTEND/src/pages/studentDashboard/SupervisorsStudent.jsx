@@ -19,6 +19,7 @@ function SupervisorsStudent() {
       try {
         setLoading(true);
         const data = await AppointmentService.getTeachers();
+        console.log("Supervisors data:", data); 
         setSupervisors(data);
       } catch (err) {
         console.error("Failed to load supervisors", err);
@@ -29,6 +30,7 @@ function SupervisorsStudent() {
     };
 
     fetchSupervisors();
+  
 
  
 
