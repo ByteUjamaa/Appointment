@@ -24,6 +24,17 @@ const AppointmentService = {
 
   getDashboardSummary: () =>
     axiosInstance.get("/appointments/dashboard/summary/").then((r) => r.data),
+
+
+  getDashboardStats:() => axiosInstance.get("/consultant/stats").then((r) => r.data),
+
+  getRecentActivity:() => axiosInstance.get("/consultant/activity/").then((r) => r.data),
+
+  getRequests:() => axiosInstance.get("/consultant/requests").then((r)=> r.data)
 };
 
 export default AppointmentService;
+
+
+
+
