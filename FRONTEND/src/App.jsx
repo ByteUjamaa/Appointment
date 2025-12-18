@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
+import { BrowserRouter , Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './routes/ProtectedRoute';
 // Auth
 import Login from './pages/Login';
 
@@ -32,7 +32,7 @@ import SupervisorsStudent from './pages/studentDashboard/SupervisorsStudent';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <div className="App min-h-screen bg-gray-50">
         <Routes>
 
@@ -41,6 +41,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Student Dashboard - Nested Routes */}
+          <Route element={<ProtectedRoute role="student" />}>
           <Route path="/studentDashboard/*" element={<StudentDashboard />}>
             <Route index element={<Navigate to="Home" replace />} />
             <Route path="home" element={<Home />} />
@@ -50,14 +51,17 @@ function App() {
 
             <Route path="profile" element={<Profile />} />
           </Route>
+          </Route>
 
           {/* Consultant Dashboard */}
+          <Route element={<ProtectedRoute role="supervisor" />}>
         <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
           <Route index element={<Navigate to="Consultanthome" replace />} />
           <Route path="Consultanthome" element={<Consultanthome />} />
           <Route path="requests" element={<Requests />} />
           {/* <Route path="reports" element={<Reports />} /> */}
           <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+        </Route>
         </Route>
 
           {/* Admin Dashboard - Nested Routes */}
@@ -76,7 +80,7 @@ function App() {
 
         </Routes>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 
