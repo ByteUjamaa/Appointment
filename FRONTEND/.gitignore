@@ -30,3 +30,6 @@ yarn-error.log*
 __pycache__/
 *.pyc
 *.pyo
+
+# Django database
+db.sqlite3
