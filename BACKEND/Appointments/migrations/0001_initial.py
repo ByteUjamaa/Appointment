@@ -46,6 +46,6 @@ class Migration(migrations.Migration):
                 ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_responses', to='Accounts.studentprofile')),
                 ('supervisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='supervisor_responses', to='Accounts.supervisorprofile')),
             ],
-            ],
+            
         ),
     ]
