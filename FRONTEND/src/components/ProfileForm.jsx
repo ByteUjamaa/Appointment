@@ -2,67 +2,90 @@ import React, { useState } from "react";
 
 const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) => {
   const isStudent = role === "student";
+  const isConsultant = !isStudent;
   const [loading, setLoading] = useState(false);
 
-  // Form state 
+  // Form state - flattened from parent
   const [formData, setFormData] = useState({
-    full_name: initialData.full_name || "",
-    username: initialData.username || "",
+    first_name: initialData.first_name || "",
+    last_name: initialData.last_name || "",
     email: initialData.email || "",
     phone: initialData.phone || "",
-    major: initialData.major || "",
-    academic_year: initialData.academic_year || "",
-    password: "",
-    confirm_password: "",
-    consultation_days: initialData.consultation_days || []
+    
+    // Student fields
+    ...(isStudent && {
+      course: initialData.course || "",
+      year_of_study: initialData.year_of_study || ""
+    }),
+    
+    // Consultant fields
+    ...(isConsultant && { 
+      title: initialData.title || "",
+      Availability: initialData.Availability || []
+    })
   });
 
-  const [selectedDays, setSelectedDays] = useState(initialData.consultation_days || []);
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  const toggleDay = (day) => {
-    const newDays = selectedDays.includes(day) 
-      ? selectedDays.filter(d => d !== day) 
-      : [...selectedDays, day];
-    setSelectedDays(newDays);
+  // Day mapping for backend
+  const dayMapping = {
+    'Monday': 'mon',
+    'Tuesday': 'tue',
+    'Wednesday': 'wed',
+    'Thursday': 'thu',
+    'Friday': 'fri',
+    'Saturday': 'sat'
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const toggleDay = (day) => {
+    const currentDays = formData.Availability || [];
+    const newDays = currentDays.includes(day)
+      ? currentDays.filter(d => d !== day)
+      : [...currentDays, day];
+    setFormData({ ...formData, Availability: newDays });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      // Prepare data to save
-      const dataToSave = {
-        full_name: formData.full_name,
-        email: formData.email,
-        phone: formData.phone,
-        ...(isStudent && {
-          major: formData.major,
-          academic_year: formData.academic_year
-        }),
-        ...(!isStudent && {
-          consultation_days: selectedDays
-        })
-      };
-
-      // Call parent's onSave function
-      if (onSave) {
-        await onSave(dataToSave);
-      }
+      let dataToSave;
       
-      // Success - go back to view mode
-      if (onCancel) {
-        onCancel();
+      if (isStudent) {
+        // Student data structure
+        dataToSave = {
+          user: {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email
+          },
+          phone: formData.phone,
+          course: formData.course,
+          year_of_study: formData.year_of_study
+        };
+      } else {
+        // Consultant data structure
+        dataToSave = {
+          user: {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email
+          },
+          phone: formData.phone,
+          title: formData.title,
+          available_days: formData.Availability.map(day => dayMapping[day])
+        };
       }
+
+      console.log("ProfileForm sending:", dataToSave);
+      await onSave(dataToSave);
+      onCancel();
       
     } catch (error) {
       alert("Error: " + error.message);
@@ -77,7 +100,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
         
         <div className="text-center mb-4">
           <div className="text-purple-600 text-5xl mb-2">
-            {!isStudent ? "👨‍🏫" : "👤"}
+            {isConsultant ? "👨‍🏫" : "👤"}
           </div>
           <h2 className="text-2xl font-bold">Edit Profile</h2>
           <p className="text-gray-500 text-sm">
@@ -86,28 +109,48 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* TITLE FIELD - Only for Consultants */}
+          {isConsultant && (
+            <div>
+              <select
+                name="title"
+                value={formData.title || ""}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+              >
+                <option value="">Select Title</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Ms.">Ms.</option>
+                <option value="Mrs.">Mrs.</option>
+              </select>
+            </div>
+          )}
+
+          {/* NAME FIELDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
-              name="full_name"
-              placeholder="Full Name *"
-              value={formData.full_name}
+              name="first_name"
+              placeholder="First Name *"
+              value={formData.first_name}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-3 w-full"
               required
             />
             <input
               type="text"
-              name="username"
-              placeholder="Username *"
-              value={formData.username}
+              name="last_name"
+              placeholder="Last Name *"
+              value={formData.last_name}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-3 w-full"
               required
-              disabled={!!initialData.username}
             />
           </div>
 
+          {/* CONTACT INFO */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="email"
@@ -129,38 +172,39 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             />
           </div>
 
+          {/* STUDENT FIELDS */}
           {isStudent && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <select
-                name="major"
-                value={formData.major}
+                name="course"
+                value={formData.course || ""}
                 onChange={handleChange}
                 className="border border-gray-300 rounded-lg p-3 w-full"
               >
-                <option value="">Select Major</option>
+                <option value="">Select Course</option>
                 <option value="CSN">CSN</option>
                 <option value="ISM">ISM</option>
-                <option value="DSA">DSA</option>
+                <option value="DS">Data Science</option>
               </select>
               <select
-                name="academic_year"
-                value={formData.academic_year}
+                name="year_of_study"
+                value={formData.year_of_study || ""}
                 onChange={handleChange}
                 className="border border-gray-300 rounded-lg p-3 w-full"
               >
-                <option value="">Select Year</option>
+                <option value="">Year of Study</option>
                 <option value="1">Year 1</option>
                 <option value="2">Year 2</option>
                 <option value="3">Year 3</option>
-                <option value="4">Year 4</option>
               </select>
             </div>
           )}
 
-          {!isStudent && (
+          {/* CONSULTANT AVAILABILITY */}
+          {isConsultant && (
             <div>
               <label className="block text-sm text-gray-600 mb-2">
-                Consultation Days (Select all that apply)
+                Availability (Select all that apply)
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {days.map(day => (
@@ -168,7 +212,11 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
                     key={day}
                     type="button"
                     onClick={() => toggleDay(day)}
-                    className={`p-2 rounded border ${selectedDays.includes(day) ? 'bg-blue-100 border-blue-500' : 'bg-gray-50 border-gray-300'}`}
+                    className={`p-2 rounded border ${
+                      (formData.Availability || []).includes(day) 
+                        ? 'bg-blue-100 border-blue-500' 
+                        : 'bg-gray-50 border-gray-300'
+                    }`}
                   >
                     {day}
                   </button>
@@ -177,8 +225,8 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             </div>
           )}
 
+          {/* BUTTONS */}
           <div className="flex gap-4 pt-4">
-            {/* CORRECT Cancel button styling */}
             <button
               type="button"
               onClick={onCancel}

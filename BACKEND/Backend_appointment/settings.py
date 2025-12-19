@@ -152,6 +152,8 @@ SIMPLE_JWT = {
 
     # Refresh token lifetime
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7), 
+
+     
 }
 
 

@@ -30,9 +30,8 @@ media/
 static/
 
 # Environment
-.env
-.venv
-env/
+
+
 venv/
 ENV/
 env.bak/

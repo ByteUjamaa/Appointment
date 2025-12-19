@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
+import { BrowserRouter , Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './routes/ProtectedRoute';
 // Auth
 import Login from './pages/Login';
 
@@ -10,6 +10,7 @@ import StudentDashboard from './pages/studentDashboard/StudentDashboard';
 import Home from './pages/studentDashboard/Home';
 // import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
+// import Supervisors from './pages/studentDashboard/SupervisorsStudent';
 import Profile from './pages/studentDashboard/Profile';
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
@@ -26,11 +27,12 @@ import { Appointment } from './pages/admin/appointments/Appointment';
 import './styles/App.css';
 // import AppointmentService from './api/appointmentServices';
 import Appointments from './pages/studentDashboard/Appointments';
+import SupervisorsStudent from './pages/studentDashboard/SupervisorsStudent';
 
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <div className="App min-h-screen bg-gray-50">
         <Routes>
 
@@ -39,21 +41,27 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Student Dashboard - Nested Routes */}
+          <Route element={<ProtectedRoute role="student" />}>
           <Route path="/studentDashboard/*" element={<StudentDashboard />}>
             <Route index element={<Navigate to="Home" replace />} />
             <Route path="home" element={<Home />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="supervisors" element={<SupervisorsStudent />} />
+
             <Route path="profile" element={<Profile />} />
+          </Route>
           </Route>
 
           {/* Consultant Dashboard */}
+          <Route element={<ProtectedRoute role="supervisor" />}>
         <Route path="/ConsultantDashboard/*" element={<Dashboard />}>
           <Route index element={<Navigate to="Consultanthome" replace />} />
           <Route path="Consultanthome" element={<Consultanthome />} />
           <Route path="requests" element={<Requests />} />
           {/* <Route path="reports" element={<Reports />} /> */}
           <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+        </Route>
         </Route>
 
           {/* Admin Dashboard - Nested Routes */}
@@ -72,7 +80,7 @@ function App() {
 
         </Routes>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 

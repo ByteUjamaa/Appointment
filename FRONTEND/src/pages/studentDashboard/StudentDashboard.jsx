@@ -7,7 +7,7 @@ const StudentDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
       {/* SIDEBAR */}
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
@@ -15,7 +15,7 @@ const StudentDashboard = () => {
       <div className="flex-1 lg:ml-64">
         <Header isOpen={isOpen} setIsOpen={setIsOpen} />
 
-        <div className="pt-[80px] pl-0  pb-6">
+        <div className="pt-[80px] pl-0 pb-6">
           <Outlet />
         </div>
       </div>

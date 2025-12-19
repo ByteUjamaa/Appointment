@@ -16,3 +16,10 @@ code {
     monospace;
 }
 
+/* Base dark mode background/text */
+html.dark body {
+  background-color: #020617; /* gray-950 */
+  color: #e5e7eb; /* gray-200 */
+}
+
+

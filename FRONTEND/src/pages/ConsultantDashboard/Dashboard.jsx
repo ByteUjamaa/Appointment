@@ -7,7 +7,7 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
 
       {/* SIDEBAR */}
       <div className="h-full">
@@ -18,7 +18,7 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* STICKY HEADER */}
-        <div className="sticky top-0 z-20 bg-white shadow">
+        <div className="sticky top-0 z-20 bg-white dark:bg-gray-950 shadow">
           <Header isOpen={isOpen} setIsOpen={setIsOpen} />
         </div>
 

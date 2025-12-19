@@ -1,11 +1,16 @@
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import api_view,permission_classes,APIView
+from rest_framework.decorators import api_view, permission_classes, APIView
 from rest_framework.response import Response
-from .models import AppointmentType, Appointment,AppointmentResponse
-from .serializers import AppointmentTypeSerializer, AppointmentSerializer,AppointmentResponseCreateSerializer,AppointmentResponseSerializer
+from .models import AppointmentType, Appointment, AppointmentResponse
+from .serializers import (
+    AppointmentTypeSerializer,
+    AppointmentSerializer,
+    AppointmentResponseCreateSerializer,
+    AppointmentResponseSerializer,
+)
 from django.db.models import Count
 from rest_framework import status
-from django.conf import settings 
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from Accounts.models import StudentProfile, SupervisorProfile
 
@@ -68,6 +73,71 @@ def list_appointments(request):
     return Response(serializer.data, status=200)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dashboard_summary(request):
+    """
+    Simple dashboard summary used by the student (and optionally supervisor/admin) dashboards.
+    Returns appointment stats plus placeholder report/activity data so the frontend
+    can render without errors.
+    """
+    user = request.user
+
+    # Scope appointments based on role
+    if getattr(user, "role", None) == "student":
+        try:
+            student_profile = user.profile  # type: ignore[attr-defined]
+        except StudentProfile.DoesNotExist:
+            return Response({"error": "Student profile not found"}, status=400)
+        qs = Appointment.objects.filter(student=student_profile)
+    elif getattr(user, "role", None) == "supervisor":
+        try:
+            supervisor_profile = user.supervisor_profile  # type: ignore[attr-defined]
+        except SupervisorProfile.DoesNotExist:
+            return Response({"error": "Supervisor profile not found"}, status=400)
+        qs = Appointment.objects.filter(supervisor=supervisor_profile)
+    else:
+        # Admin or unknown role – show global summary
+        qs = Appointment.objects.all()
+
+    def count_status(status_value: str) -> int:
+        return qs.filter(status=status_value).count()
+
+    appointments_data = {
+        "pending": count_status("Pending"),
+        "accepted": count_status("Accepted"),
+        "completed": count_status("Completed"),
+        # For now, treat accepted as upcoming
+        "upcoming": count_status("Accepted"),
+    }
+
+    completed_sessions = count_status("Completed")
+    total_appointments = qs.count()
+    total_reports = 0  # No report model yet – keep zeroed but structured
+
+    reports_data = {
+        "drafts": 0,
+        "submitted": 0,
+        "total": total_reports,
+    }
+
+    activities_data = {
+        "completedSessions": completed_sessions,
+        "totalAppointments": total_appointments,
+        "totalReports": total_reports,
+        "totalActivities": total_appointments + total_reports,
+    }
+
+    return Response(
+        {
+            "user_name": user.first_name or user.username,
+            "appointments": appointments_data,
+            "reports": reports_data,
+            "activities": activities_data,
+        },
+        status=200,
+    )
+
 @api_view(['PATCH'])
 def update_appointment_status(request, pk):
     try:
@@ -95,6 +165,8 @@ def update_appointment_status(request, pk):
     )
 
 
+
+ 
 @api_view(['GET'])
 def appointment_status_count(request):
     data = Appointment.objects.values(
@@ -104,7 +176,6 @@ def appointment_status_count(request):
     )
 
     return Response(data, status=200)
-
 
 
 def post(self, request, appointment_id):
@@ -151,11 +222,10 @@ def post(self, request, appointment_id):
     return Response(
         {
             "message": "Response created successfully.",
-            "data": AppointmentResponseSerializer(response).data
+            "data": AppointmentResponseSerializer(response).data,
         },
-        status=201
+        status=201,
     )
-
 
 
 
@@ -193,7 +263,101 @@ def patch(self, request, appointment_id):
         appointment.save()
 
     return Response(
-        {"message": "Response updated successfully.", "data": AppointmentResponseSerializer(response).data},
-        status=200
+        {
+            "message": "Response updated successfully.",
+            "data": AppointmentResponseSerializer(response).data,
+        },
+        status=200,
     )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def consultant_stats(request):
+    """
+    Basic stats for the consultant/supervisor dashboard.
+    """
+    user = request.user
+    if getattr(user, "role", None) != "supervisor":
+        return Response(
+            {"error": "Only supervisors can access consultant statistics."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        supervisor_profile = user.supervisor_profile  # type: ignore[attr-defined]
+    except SupervisorProfile.DoesNotExist:
+        return Response(
+            {"error": "Supervisor profile not found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    qs = Appointment.objects.filter(supervisor=supervisor_profile)
+
+    data = {
+        "totalAppointments": qs.count(),
+        "pending": qs.filter(status="Pending").count(),
+        "accepted": qs.filter(status="Accepted").count(),
+        "rejected": qs.filter(status="Rejected").count(),
+        "completed": qs.filter(status="Completed").count(),
+    }
+
+    return Response(data, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def consultant_activity(request):
+    """
+    Recent appointment activity for a supervisor.
+    """
+    user = request.user
+    if getattr(user, "role", None) != "supervisor":
+        return Response(
+            {"error": "Only supervisors can access consultant activity."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        supervisor_profile = user.supervisor_profile  # type: ignore[attr-defined]
+    except SupervisorProfile.DoesNotExist:
+        return Response(
+            {"error": "Supervisor profile not found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    qs = (
+        Appointment.objects.filter(supervisor=supervisor_profile)
+        .order_by("-created_at")[:10]
+    )
+    serializer = AppointmentSerializer(qs, many=True)
+    return Response(serializer.data, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def consultant_requests(request):
+    """
+    List of pending appointment requests for a supervisor.
+    """
+    user = request.user
+    if getattr(user, "role", None) != "supervisor":
+        return Response(
+            {"error": "Only supervisors can access consultant requests."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        supervisor_profile = user.supervisor_profile  # type: ignore[attr-defined]
+    except SupervisorProfile.DoesNotExist:
+        return Response(
+            {"error": "Supervisor profile not found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    qs = Appointment.objects.filter(
+        supervisor=supervisor_profile,  #status="Pending"
+    ).order_by("date", "time")
+    serializer = AppointmentSerializer(qs, many=True)
+    return Response(serializer.data, status=200)
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const ChangePassword = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    current_password: "",
+    old_password: "",
     new_password: "",
     confirm_password: ""
   });
@@ -15,7 +15,7 @@ const ChangePassword = ({ onClose }) => {
       ...formData,
       [name]: value
     });
-    setError("");
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -23,7 +23,7 @@ const ChangePassword = ({ onClose }) => {
     setLoading(true);
     setError("");
 
-    // Validate
+    // Basic validation
     if (formData.new_password.length < 6) {
       setError("New password must be at least 6 characters");
       setLoading(false);
@@ -36,28 +36,51 @@ const ChangePassword = ({ onClose }) => {
       return;
     }
 
+    if (formData.old_password === formData.new_password) {
+      setError("New password must be different from old password");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // TODO: Connect to your Django endpoint /accounts/change-password/
-      const response = await fetch("/accounts/change-password/", {
-        method: "POST",
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+      
+      if (!token) {
+        setError("You are not logged in. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      // Use correct endpoint with /api/
+      const response = await fetch('http://localhost:8000/api/accounts/change-password/', {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          current_password: formData.current_password,
+          old_password: formData.old_password,
           new_password: formData.new_password
         }),
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      
       if (response.ok) {
         alert("Password changed successfully!");
         onClose();
       } else {
-        const data = await response.json();
-        setError(data.error || "Failed to change password");
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setError(data.detail || data.error || "Failed to change password");
+        } else {
+          const text = await response.text();
+          setError(`Server error: ${text.substring(0, 100)}`);
+        }
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(err.message || "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -75,43 +98,54 @@ const ChangePassword = ({ onClose }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            name="current_password"
-            placeholder="Current Password *"
-            value={formData.current_password}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
-            required
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="new_password"
-            placeholder="New Password * (min 6 characters)"
-            value={formData.new_password}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
-            required
-            minLength={6}
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="confirm_password"
-            placeholder="Confirm New Password *"
-            value={formData.confirm_password}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
-            required
-            disabled={loading}
-          />
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Current Password</label>
+            <input
+              type="password"
+              name="old_password"
+              placeholder="Enter current password"
+              value={formData.old_password}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              required
+              disabled={loading}
+            />
+          </div>
           
-          <div className="flex gap-4">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">New Password</label>
+            <input
+              type="password"
+              name="new_password"
+              placeholder="Enter new password (min 6 characters)"
+              value={formData.new_password}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              required
+              minLength={6}
+              disabled={loading}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Confirm New Password</label>
+            <input
+              type="password"
+              name="confirm_password"
+              placeholder="Confirm new password"
+              value={formData.confirm_password}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="flex gap-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
+              className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition"
               disabled={loading}
             >
               Cancel
@@ -119,7 +153,7 @@ const ChangePassword = ({ onClose }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
             >
               {loading ? "Changing..." : "Change Password"}
             </button>
