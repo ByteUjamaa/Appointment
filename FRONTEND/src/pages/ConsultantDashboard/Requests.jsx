@@ -10,9 +10,9 @@ const Requests = () => {
 
   const [modal, setModal] = useState({
     open: false,
-    type: "", // "view", "accept", "deny"
+    type: "", // "view", "accept", "reject", "complete"
     requestId: null,
-    reason: "",
+    reason: "", // Consultant's response
     sessionDate: "",
     sessionTime: "",
   });
@@ -36,13 +36,14 @@ const Requests = () => {
   }, []);
 
   const openModal = (type, id) => {
+    const req = requests.find((r) => r.id === id);
     setModal({
       open: true,
       type,
       requestId: id,
-      reason: "",
-      sessionDate: "",
-      sessionTime: "",
+      reason: req?.consultant_response || "", // show existing response if any
+      sessionDate: req?.sessionDate || "",
+      sessionTime: req?.sessionTime || "",
     });
   };
 
@@ -58,40 +59,39 @@ const Requests = () => {
   };
 
   const submitAction = async () => {
-    // Validation
-    if (modal.type !== "view") {
-      if (!modal.reason.trim()) {
-        alert("Please provide a reason or notes.");
-        return;
-      }
-      if (modal.type === "accept" && (!modal.sessionDate || !modal.sessionTime)) {
-        alert("Please select both date and time for the consultation.");
-        return;
-      }
+    if (!modal.reason.trim()) {
+      alert("Please provide a response or reason.");
+      return;
     }
 
     try {
       setLoading(true);
-
       let newStatus = "";
-      if (modal.type === "accept") newStatus = "Accepted";
-      else if (modal.type === "deny") newStatus = "Rejected";
-      else return;
 
-      // Call backend to update status
-      await appointmentService.updateStatus(modal.requestId, newStatus);
+      if (modal.type === "accept") {
+        newStatus = "Accepted";
+      } else if (modal.type === "reject") {
+        newStatus = "Rejected";
+      } else if (modal.type === "complete") {
+        newStatus = "Completed";
+      } else {
+        return;
+      }
 
-      // Optimistically update local state
+      // Send update to backend
+      await appointmentService.updateStatus(modal.requestId, newStatus, modal.reason);
+
+      // Update local state
       setRequests((prev) =>
         prev.map((req) =>
           req.id === modal.requestId
             ? {
                 ...req,
                 status: newStatus,
-                reason: modal.reason,
+                consultant_response: modal.reason,
                 appointment:
                   modal.type === "accept"
-                    ? `${modal.sessionDate} at ${modal.sessionTime}`
+                    ? req.appointment || `${modal.sessionDate} at ${modal.sessionTime}`
                     : req.appointment,
               }
             : req
@@ -99,9 +99,6 @@ const Requests = () => {
       );
 
       closeModal();
-   
-
-
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
       alert(
@@ -165,7 +162,7 @@ const Requests = () => {
         Review and manage student consultation requests.
       </p>
 
-      {/* Tabs with Counts */}
+      {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
         {tabs.map((tab) => {
           const count = requests.filter((r) => r.status === tab).length;
@@ -232,6 +229,12 @@ const Requests = () => {
                 </p>
               )}
 
+              {req.consultant_response && (
+                <p className="mt-2 text-sm text-gray-700">
+                  <strong>Response:</strong> {req.consultant_response}
+                </p>
+              )}
+
               <div className="mt-6 flex flex-col gap-3">
                 <button
                   onClick={() => openModal("view", req.id)}
@@ -240,7 +243,7 @@ const Requests = () => {
                   View Details →
                 </button>
 
-                {req.status === "Pending" && (
+                {activeTab === "Pending" && (
                   <div className="flex gap-3 mt-4">
                     <button
                       onClick={() => openModal("accept", req.id)}
@@ -249,10 +252,21 @@ const Requests = () => {
                       Accept
                     </button>
                     <button
-                      onClick={() => openModal("deny", req.id)}
+                      onClick={() => openModal("reject", req.id)}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg font-medium transition"
                     >
                       Reject
+                    </button>
+                  </div>
+                )}
+
+                {activeTab === "Accepted" && (
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={() => openModal("complete", req.id)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition"
+                    >
+                      Mark as Completed
                     </button>
                   </div>
                 )}
@@ -263,126 +277,81 @@ const Requests = () => {
       </div>
 
       {/* Modal */}
-      {modal.open && (
+      {modal.open && selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                {modal.type === "accept"
+                  ? "Accept Request"
+                  : modal.type === "reject"
+                  ? "Reject Request"
+                  : modal.type === "complete"
+                  ? "Submit Response"
+                  : "Request Details"}
+              </h3>
 
-              {/* View Mode */}
-              {modal.type === "view" && selectedRequest && (
-                <>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                    Request Details
-                  </h3>
+              <p className="text-lg text-gray-800 font-medium mb-6">
+                {selectedRequest.title}
+              </p>
 
-                  <h4 className="text-xl font-semibold text-gray-800 mb-3">
-                    {selectedRequest.title}
-                  </h4>
-
-                  <p className="text-gray-700 mb-8 leading-relaxed">
-                    {selectedRequest.description}
-                  </p>
-
-                  <div className="space-y-4 text-gray-700">
-                    <p>
-                      <strong>Student:</strong> {selectedRequest.student || selectedRequest.student_name}
-                    </p>
-                    <p>
-                      <strong>Requested on:</strong> {selectedRequest.date || selectedRequest.created_at}
-                    </p>
-                    <p>
-                      <strong>Status:</strong>{" "}
-                      <span className={`ml-2 px-3 py-1 rounded-full text-xs font-medium ${statusColor[selectedRequest.status]}`}>
-                        {selectedRequest.status}
-                      </span>
-                    </p>
-                    {selectedRequest.appointment && (
-                      <p>
-                        <strong>Scheduled:</strong> {selectedRequest.appointment}
-                      </p>
-                    )}
-                    {selectedRequest.reason && (
-                      <p>
-                        <strong>Your Notes:</strong> {selectedRequest.reason}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="mt-10 flex justify-end">
-                    <button
-                      onClick={closeModal}
-                      className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </>
+              {/* Show textarea for accept/reject/complete */}
+              {["accept", "reject", "complete"].includes(modal.type) && (
+                <div className="mb-6">
+                  <label className="block text-gray-700 font-medium mb-2">
+                    Response / Notes <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg p-4 h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                    placeholder="Provide your response..."
+                    value={modal.reason}
+                    onChange={(e) => setModal({ ...modal, reason: e.target.value })}
+                  />
+                </div>
               )}
 
-              {/* Accept / Reject Mode */}
-              {(modal.type === "accept" || modal.type === "deny") && selectedRequest && (
-                <>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                    {modal.type === "accept" ? "Accept" : "Reject"} Request
-                  </h3>
-
-                  <p className="text-lg text-gray-800 font-medium mb-6">
-                    {selectedRequest.title}
-                  </p>
-
-                  <div className="mb-6">
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Reason / Notes <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      className="w-full border border-gray-300 rounded-lg p-4 h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
-                      placeholder="Provide your reason or additional notes..."
-                      value={modal.reason}
-                      onChange={(e) => setModal({ ...modal, reason: e.target.value })}
+              {/* Show date/time only when accepting first */}
+              {modal.type === "accept" && (
+                <div className="mb-8">
+                  <label className="block text-gray-700 font-medium mb-3">
+                    Schedule Consultation <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="date"
+                      className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
+                      value={modal.sessionDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setModal({ ...modal, sessionDate: e.target.value })}
+                    />
+                    <input
+                      type="time"
+                      className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
+                      value={modal.sessionTime}
+                      onChange={(e) => setModal({ ...modal, sessionTime: e.target.value })}
                     />
                   </div>
-
-                  {modal.type === "accept" && (
-                    <div className="mb-8">
-                      <label className="block text-gray-700 font-medium mb-3">
-                        Schedule Consultation <span className="text-red-500">*</span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <input
-                          type="date"
-                          className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-                          value={modal.sessionDate}
-                          min={new Date().toISOString().split("T")[0]}
-                          onChange={(e) => setModal({ ...modal, sessionDate: e.target.value })}
-                        />
-                        <input
-                          type="time"
-                          className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-                          value={modal.sessionTime}
-                          onChange={(e) => setModal({ ...modal, sessionTime: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-4">
-                    <button
-                      onClick={closeModal}
-                      className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={submitAction}
-                      disabled={loading}
-                      className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white rounded-lg font-medium transition flex items-center gap-2"
-                    >
-                      {loading && <Loader2 size={20} className="animate-spin" />}
-                      Submit
-                    </button>
-                  </div>
-                </>
+                </div>
               )}
+
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={closeModal}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition"
+                >
+                  Cancel
+                </button>
+                {["accept", "reject", "complete"].includes(modal.type) && (
+                  <button
+                    onClick={submitAction}
+                    disabled={loading}
+                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white rounded-lg font-medium transition flex items-center gap-2"
+                  >
+                    {loading && <Loader2 size={20} className="animate-spin" />}
+                    Submit
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
