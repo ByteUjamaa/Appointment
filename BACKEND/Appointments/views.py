@@ -178,6 +178,7 @@ def appointment_status_count(request):
     return Response(data, status=200)
 
 
+
 def post(self, request, appointment_id):
     # Validate supervisor
     try:
