@@ -40,11 +40,21 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
 
 class AppointmentResponseSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source="student.user.first_name", read_only=True)
+    supervisor_name = serializers.CharField(source="supervisor.user.first_name", read_only=True)
+
     class Meta:
         model = AppointmentResponse
-        fields = "__all__"
-        read_only_fields = ["appointment", "updated_at"]
-
+        fields = [
+            "id",
+            "appointment",
+            "status",
+            "notes",
+            "created_at",
+            "updated_at",
+            "student_name",
+            "supervisor_name",
+        ]
 class AppointmentResponseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentResponse
