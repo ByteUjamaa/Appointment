@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('Accounts', '0005_alter_studentprofile_phone_and_more'),
+        ('Accounts', '__first__'),
         ('Appointments', '0001_initial'),
     ]
 
