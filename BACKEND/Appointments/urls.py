@@ -6,7 +6,7 @@ from .views import (
     update_appointment_status,
     appointment_status_count,
     dashboard_summary,
-    consultant_stats, consultant_activity, consultant_requests
+    AppointmentResponseView
 )
 
 urlpatterns = [
@@ -18,5 +18,6 @@ urlpatterns = [
     path("status-count/", appointment_status_count),
     # Dashboard summary used by student/supervisor/admin dashboards
     path("dashboard/summary/", dashboard_summary),
+    path("<int:appointment_id>/response/",AppointmentResponseView.as_view(),),
  
 ]
