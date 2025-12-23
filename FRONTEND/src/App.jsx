@@ -11,7 +11,7 @@ import Appointments from './pages/studentDashboard/Appointments';
 import Reports from './pages/studentDashboard/Reports';
 import SupervisorsStudent from './pages/studentDashboard/SupervisorsStudent';
 import Profile from './pages/studentDashboard/Profile';
-import FirstLoginProfile from './components/FirstLoginProfile'; // ADD THIS
+import FirstLoginProfile from './components/FirstLoginProfile'; 
 
 // Consultant Dashboard
 import Dashboard from './pages/ConsultantDashboard/Dashboard';
