@@ -61,9 +61,10 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
 
 class SupervisorProfileSerializer(serializers.ModelSerializer):
-    available_days = serializers.PrimaryKeyRelatedField(
+    available_days = serializers.SlugRelatedField(
+        many=True,
         queryset=Availability.objects.all(),
-        many=True
+        slug_field='day'  # this uses the "day" field instead of ID
     )
 
     first_name = serializers.CharField(source="user.first_name")
@@ -83,26 +84,26 @@ class SupervisorProfileSerializer(serializers.ModelSerializer):
         ]
     
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user", None)
+      user_data = validated_data.pop("user", None)
 
-        # Update User info
-        if user_data:
+    # Update User info
+      if user_data:
          for attr, value in user_data.items():
             setattr(instance.user, attr, value)
 
-        instance.user.first_login = False
-        instance.user.save()
+      instance.user.first_login = False
+      instance.user.save()
 
-        # Update available days
-        if "available_days" in validated_data:
-            instance.available_days.set(validated_data.pop("available_days"))
+    # Update available days
+      if "available_days" in validated_data:
+         instance.available_days.set(validated_data.pop("available_days"))
 
-        # Update profile fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+    # Update profile fields
+      for attr, value in validated_data.items():
+        setattr(instance, attr, value)
 
-        instance.save()
-        return instance
+      instance.save()
+      return instance
 
 
 class ChangePasswordSerializer(serializers.Serializer):

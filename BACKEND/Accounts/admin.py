@@ -46,3 +46,4 @@ class SupervisorProfileAdmin(admin.ModelAdmin):
 class AvailabilityAdmin(admin.ModelAdmin):
     list_display = ("day",)
     search_fields = ("day",)
+
