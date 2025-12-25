@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import AppointmentReport
+from django.utils import timezone
 
 
 class AppointmentReportCreateSerializer(serializers.ModelSerializer):
@@ -21,8 +22,12 @@ class AppointmentReportCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context['request']
 
-        validated_data['student'] = request.user.studentprofile
-        validated_data['supervisor'] = validated_data['appointment'].supervisor
+        # Assign student
+        validated_data['student'] = request.user.profile
+
+        # Get the Appointment instance
+        appointment = validated_data['appointment']
+        validated_data['supervisor'] = appointment.supervisor
 
         return super().create(validated_data)
 
@@ -32,11 +37,11 @@ class AppointmentReportSubmitSerializer(serializers.ModelSerializer):
         model = AppointmentReport
         fields = ['status']
 
-    def validate_status(self, value):
-        if value != 'submitted':
-            raise serializers.ValidationError("Report can only be submitted.")
-        return value
-
+    def update(self, instance, validated_data):
+        instance.status = 'submitted'  # force it
+        instance.submitted_at = timezone.now()  # optionally track submission time
+        instance.save()
+        return instance
 
 class AppointmentReportReviewSerializer(serializers.ModelSerializer):
     class Meta:

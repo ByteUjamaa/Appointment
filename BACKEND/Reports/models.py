@@ -40,9 +40,8 @@ class AppointmentReport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # -------------------------
     # Business rules
-    # -------------------------
+    
     def clean(self):
         if self.appointment.status.lower() != 'accepted':
             raise ValidationError(
