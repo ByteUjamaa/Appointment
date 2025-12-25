@@ -67,9 +67,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           <User /> Profile
         </NavLink>
 
-        <div className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer text-red-600">
-          <LogOut /> Logout
-        </div>
+        
       </ul>
     </div>
   );
