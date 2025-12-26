@@ -11,7 +11,8 @@ class AppointmentReport(models.Model):
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('changes_requested', 'Changes Requested'),
+        ('signed', 'Signed'),
     ]
 
     appointment = models.OneToOneField(
@@ -34,11 +35,13 @@ class AppointmentReport(models.Model):
         default='draft'
     )
 
-    submitted_at = models.DateTimeField(null=True, blank=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
+    supervisor_signature=models.ImageField(
+        upload_to="report_signatures/",
+        blank=True,
+        null=True,
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
 
     # Business rules
     
@@ -56,10 +59,17 @@ class AppointmentReport(models.Model):
         if self.status == 'submitted' and self.submitted_at is None:
             self.submitted_at = timezone.now()
 
-        if self.status in ['approved', 'rejected'] and self.reviewed_at is None:
+        if self.status in ['approved', 'requested_changes'] and self.reviewed_at is None:
             self.reviewed_at = timezone.now()
 
         super().save(*args, **kwargs)
+
+   
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    signed_at=models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"Report for Appointment {self.appointment.id}"

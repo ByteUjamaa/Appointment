@@ -19,6 +19,11 @@ class AppointmentReportCreateSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+    def validate(self, attrs):
+        if self.instance and self.instance.status == 'signed':
+            raise serializers.ValidationError("Signed reports cannot be edited.")
+        return attrs
+
     def create(self, validated_data):
         request = self.context['request']
 
@@ -58,13 +63,25 @@ class AppointmentReportReviewSerializer(serializers.ModelSerializer):
         ]
 
     def validate_status(self, value):
-        if value not in ['approved', 'rejected']:
+        if value not in ['approved', 'changes_requested']:
             raise serializers.ValidationError(
-                "Supervisor can only approve or reject a report."
+                "status must be approved or changes_requested."
             )
         return value
 
 
+
+class AppointmentReportSignatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=AppointmentReport
+        fields=['supervisor_signature']
+
+    def validate(self, attrs):
+        if self.instance.status !='approved':
+            raise serializers.ValidationError(
+                'Only approved reports can be signed.'
+            )
+        return attrs
 class AppointmentReportDetailSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
         source='student.user.get_full_name',
@@ -89,4 +106,6 @@ class AppointmentReportDetailSerializer(serializers.ModelSerializer):
             'submitted_at',
             'reviewed_at',
             'created_at',
+            'signed_ at'
+            'supervisor_signature'
         ]

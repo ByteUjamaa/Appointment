@@ -12,6 +12,7 @@ from .serializers import (
     AppointmentReportSubmitSerializer,
     AppointmentReportReviewSerializer,
     AppointmentReportDetailSerializer,
+    AppointmentReportSignatureSerializer
 )
 
 # Helper function
@@ -101,6 +102,12 @@ def report_detail(request, pk):
         serializer = AppointmentReportReviewSerializer(report, data=request.data, partial=True)
     else:
         return Response({"detail": "You cannot edit this report."}, status=status.HTTP_403_FORBIDDEN)
+    
+    if report.status=='signed':
+        return Response(
+            {'details': 'Signed reports are read-only'},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
     if serializer.is_valid():
         serializer.save(reviewed_at=timezone.now() if hasattr(user, 'supervisorprofile') else None)
@@ -156,3 +163,29 @@ def review_report(request, pk):
         return Response(serialize_report(report), status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def sign_report(request, pk):
+    report=AppointmentReport.objects.get(pk=pk)
+
+    if report.supervisor !=SupervisorProfile:
+        return Response({"detail": "Not your report."}, status=403)
+    
+    serializer = AppointmentReportSignatureSerializer(
+        report,
+        data=request.data,
+        partial=True
+    )
+
+    if serializer.is_valid():
+        serializer.save(
+            status='signed',
+            signed_at=timezone.now()
+        )
+        return Response(
+            AppointmentReportDetailSerializer(report).data,
+            status=200
+        )
+
+    return Response(serializer.errors, status=400)
