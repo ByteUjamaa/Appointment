@@ -7,12 +7,12 @@ function SupervisorsStudent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-   const getAvailableDays=(supervisors) =>{
-    return(
-      supervisors.days ||
-      []
-    )
-  }
+
+
+ const getAvailableDays = (supervisor) => {
+  return supervisor.available_days || [];
+};
+
 
   useEffect(() => {
     const fetchSupervisors = async () => {
@@ -31,12 +31,7 @@ function SupervisorsStudent() {
 
     fetchSupervisors();
   
-
- 
-
   }, []);
-
-  
 
   if (loading) {
     return (
@@ -127,7 +122,7 @@ return (
                 )}
               </div>
 
-              {/* Phone (optional) */}
+              {/* Phone (optional) */} 
               {s.phone && (
                 <div className="mt-4 pt-4 border-t text-sm text-gray-700">
                   <span className="font-medium">Phone:</span> {s.phone}

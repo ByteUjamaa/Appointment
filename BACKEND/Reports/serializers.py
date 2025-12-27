@@ -106,6 +106,6 @@ class AppointmentReportDetailSerializer(serializers.ModelSerializer):
             'submitted_at',
             'reviewed_at',
             'created_at',
-            'signed_ at'
+            'signed_at',
             'supervisor_signature'
         ]
