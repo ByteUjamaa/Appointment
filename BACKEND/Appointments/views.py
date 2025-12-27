@@ -13,6 +13,7 @@ from rest_framework import status
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from Accounts.models import StudentProfile, SupervisorProfile
+from django.shortcuts import get_object_or_404
 
 
 @api_view(['GET'])
@@ -107,7 +108,6 @@ def dashboard_summary(request):
         "pending": count_status("Pending"),
         "accepted": count_status("Accepted"),
         "completed": count_status("Completed"),
-        # For now, treat accepted as upcoming
         "upcoming": count_status("Accepted"),
     }
 
@@ -182,6 +182,23 @@ def appointment_status_count(request):
 class AppointmentResponseView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(self, request, appointment_id):
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+
+        # Permission check...
+        if request.user != appointment.student.user and request.user != appointment.supervisor.user:
+            return Response({"error": "Permission denied."}, status=403)
+
+        try:
+            response_obj = appointment.response
+            serializer = AppointmentResponseSerializer(response_obj)
+            return Response(serializer.data, status=200)
+        except AppointmentResponse.DoesNotExist:
+            return Response(
+                {"detail": "No response has been provided yet.", "data": None},
+                status=200  # ← Changed from 404 to 200
+            )
+
     def post(self, request, appointment_id):
         # Validate supervisor
         try:
@@ -214,7 +231,7 @@ class AppointmentResponseView(APIView):
 
         response = serializer.save(
             appointment=appointment,
-            student=appointment.student,
+            student=appointment.student, 
             supervisor=supervisor
         )
 

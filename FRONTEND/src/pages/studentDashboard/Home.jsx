@@ -94,9 +94,9 @@ export default function Home() {
             color="text-green-600"
           />
           <DashboardCard
-            title="Upcoming"
-            value={appointments.upcoming || appointments.accepted || 0}
-            color="text-purple-600"
+            title="Rejected"
+            value={appointments.rejected || 0}
+            color="text-red-600"
           />
         </div>
       </section>

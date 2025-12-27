@@ -4,7 +4,6 @@ const AppointmentService = {
   getAppointmentTypes: () =>
     axiosInstance.get("/appointments/types/").then((r) => r.data),
 
-  // Uses backend Accounts.urls → /api/accounts/supervisors/
   getTeachers: () =>
     axiosInstance.get("/accounts/supervisors/").then((r) => r.data),
 
@@ -25,18 +24,36 @@ const AppointmentService = {
   getDashboardSummary: () =>
     axiosInstance.get("/appointments/dashboard/summary/").then((r) => r.data),
 
+  getAppointmentResponse: (appointmentId) =>
+    axiosInstance
+      .get(`/appointments/${appointmentId}/response/`)
+      .then((r) => r.data),
 
-  getDashboardStats:() => axiosInstance.get("/consultant/stats").then((r) => r.data),
+  getDashboardStats: () => axiosInstance.get("/consultant/stats").then((r) => r.data),
 
-  getRecentActivity:() => axiosInstance.get("/consultant/activity/").then((r) => r.data),
+  getRecentActivity: () => axiosInstance.get("/consultant/activity/").then((r) => r.data),
 
-  getRequests:() => axiosInstance.get("/consultant/requests").then((r)=> r.data)
+  getRequests: () => axiosInstance.get("/consultant/requests").then((r) => r.data),
 
+  
+  getReports: () =>
+    axiosInstance.get("/reports/create/").then((r) => r.data),
 
+  // Create a new report
+  createReport: (data) =>
+    axiosInstance.post("/reports/create/", data).then((r) => r.data),
+
+   getReports: () =>
+    axiosInstance.get("/reports/create/").then((r) => r.data),
+
+  createReport: (data) =>
+    axiosInstance.post("/reports/create/", data).then((r) => r.data),
+
+  updateReport: (id, data) =>
+    axiosInstance.patch(`/reports/${id}/`, data).then((r) => r.data),
+
+  submitReport: (id) =>
+    axiosInstance.patch(`/reports/${id}/submit/`).then((r) => r.data),
 };
 
 export default AppointmentService;
-
-
-
-
