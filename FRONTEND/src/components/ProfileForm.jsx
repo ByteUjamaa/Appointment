@@ -1,24 +1,19 @@
 import React, { useState } from "react";
 
-const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) => {
+const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isFirstLogin = false }) => {
   const isStudent = role === "student";
   const isConsultant = !isStudent;
   const [loading, setLoading] = useState(false);
 
-  // Form state - flattened from parent
   const [formData, setFormData] = useState({
     first_name: initialData.first_name || "",
     last_name: initialData.last_name || "",
     email: initialData.email || "",
     phone: initialData.phone || "",
-    
-    // Student fields
     ...(isStudent && {
       course: initialData.course || "",
       year_of_study: initialData.year_of_study || ""
     }),
-    
-    // Consultant fields
     ...(isConsultant && { 
       title: initialData.title || "",
       Availability: initialData.Availability || []
@@ -26,20 +21,23 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
   });
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-  // Day mapping for backend
   const dayMapping = {
-    'Monday': 'mon',
-    'Tuesday': 'tue',
-    'Wednesday': 'wed',
-    'Thursday': 'thu',
-    'Friday': 'fri',
-    'Saturday': 'sat'
+    'Monday': 'mon', 'Tuesday': 'tue', 'Wednesday': 'wed',
+    'Thursday': 'thu', 'Friday': 'fri', 'Saturday': 'sat'
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Special handling for phone to allow only digits
+      if (name === 'phone') {
+    // Remove any non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    setFormData({ ...formData, [name]: digitsOnly });
+  } else {
+    setFormData({ ...formData, [name]: value });
+  }
   };
 
   const toggleDay = (day) => {
@@ -58,7 +56,6 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
       let dataToSave;
       
       if (isStudent) {
-        // Student data structure
         dataToSave = {
           user: {
             first_name: formData.first_name,
@@ -70,7 +67,6 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
           year_of_study: formData.year_of_study
         };
       } else {
-        // Consultant data structure
         dataToSave = {
           user: {
             first_name: formData.first_name,
@@ -83,9 +79,8 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
         };
       }
 
-      console.log("ProfileForm sending:", dataToSave);
       await onSave(dataToSave);
-      onCancel();
+      if (!isFirstLogin) onCancel();
       
     } catch (error) {
       alert("Error: " + error.message);
@@ -97,38 +92,34 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="bg-white w-full max-w-xl p-8 rounded-2xl shadow-lg">
-        
         <div className="text-center mb-4">
           <div className="text-purple-600 text-5xl mb-2">
             {isConsultant ? "👨‍🏫" : "👤"}
           </div>
-          <h2 className="text-2xl font-bold">Edit Profile</h2>
+          <h2 className="text-2xl font-bold">
+            {isFirstLogin ? "Complete Your Profile" : "Edit Profile"}
+          </h2>
           <p className="text-gray-500 text-sm">
-            Update your profile information
+            {isFirstLogin ? "Complete profile to continue" : "Update profile information"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* TITLE FIELD - Only for Consultants */}
           {isConsultant && (
-            <div>
-              <select
-                name="title"
-                value={formData.title || ""}
-                onChange={handleChange}
-                className="border border-gray-300 rounded-lg p-3 w-full"
-              >
-                <option value="">Select Title</option>
-                <option value="Dr.">Dr.</option>
-                <option value="Prof.">Prof.</option>
-                <option value="Mr.">Mr.</option>
-                <option value="Ms.">Ms.</option>
-                <option value="Mrs.">Mrs.</option>
-              </select>
-            </div>
+            <select
+              name="title"
+              value={formData.title || ""}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-lg p-3 w-full"
+            >
+              <option value="">Select Title</option>
+              <option value="Dr.">Dr.</option>
+              <option value="Prof.">Prof.</option>
+              <option value="Mr.">Mr.</option>
+              <option value="Ms.">Ms.</option>
+            </select>
           )}
 
-          {/* NAME FIELDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
@@ -150,7 +141,6 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             />
           </div>
 
-          {/* CONTACT INFO */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="email"
@@ -164,15 +154,17 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             <input
               type="tel"
               name="phone"
-              placeholder="Phone Number *"
+              placeholder="Phone *"
               value={formData.phone}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-3 w-full"
               required
+              pattern="[0-9]*"
+              inputMode="numeric"
+              title="Please enter only numbers (e.g., 255123456789)"
             />
           </div>
 
-          {/* STUDENT FIELDS */}
           {isStudent && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <select
@@ -200,12 +192,9 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             </div>
           )}
 
-          {/* CONSULTANT AVAILABILITY */}
           {isConsultant && (
             <div>
-              <label className="block text-sm text-gray-600 mb-2">
-                Availability (Select all that apply)
-              </label>
+              <label className="block text-sm text-gray-600 mb-2">Availability</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {days.map(day => (
                   <button
@@ -213,7 +202,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
                     type="button"
                     onClick={() => toggleDay(day)}
                     className={`p-2 rounded border ${
-                      (formData.Availability || []).includes(day) 
+                      formData.Availability?.includes(day) 
                         ? 'bg-blue-100 border-blue-500' 
                         : 'bg-gray-50 border-gray-300'
                     }`}
@@ -225,23 +214,24 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {} }) =
             </div>
           )}
 
-          {/* BUTTONS */}
           <div className="flex gap-4 pt-4">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-
+            {!isFirstLogin && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+            
             <button 
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              className={`${isFirstLogin ? 'w-full' : 'flex-1'} bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700`}
             >
-              {loading ? "Saving..." : "Save Changes"}
+              {loading ? "Saving..." : isFirstLogin ? "Save & Continue" : "Save Changes"}
             </button>
           </div>
         </form>

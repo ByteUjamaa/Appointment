@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import RegexValidator
 
 
 class UserManager(BaseUserManager):
@@ -43,6 +44,10 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.role})"
 
+phone_validator = RegexValidator(
+    regex=r'^(0|\+)\d+$',
+    message="Phone number must start with 0 or + and contain digits only."
+)
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(
@@ -51,7 +56,7 @@ class StudentProfile(models.Model):
         related_name='profile'
     )
 
-    phone = models.CharField(max_length=20, blank=True, null=True)
+    phone = models.CharField(max_length=16, null=True, validators=[phone_validator],unique=True)
 
     COURSE_CHOICES = [
         ('CSN', 'Computer System and Networks'),
@@ -105,7 +110,7 @@ class SupervisorProfile(models.Model):
     )
 
     title = models.CharField(max_length=10)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=16,null=True,validators=[phone_validator],unique=True)
 
     available_days = models.ManyToManyField(
         Availability,

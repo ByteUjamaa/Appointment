@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; 
 
-
-
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
@@ -32,8 +30,7 @@ const Login = () => {
         password: formData.password,
       });
 
-
-      // SAVE TOKENS
+      // SAVE TOKENS AND USER DATA
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
       }
@@ -46,25 +43,43 @@ const Login = () => {
       if (response.data.role) {
         localStorage.setItem("role", response.data.role);
       }
+      
+      //   Save first_login for first login flow
+      if (response.data.first_login !== undefined) {
+        localStorage.setItem("first_login", response.data.first_login);
+      }
+      
+      //   Save user_role for profile form
+      if (response.data.role) {
+        localStorage.setItem("user_role", response.data.role);
+      }
 
-      // Decide where to go next based on role + first_login, falling back to backend redirect_path
+      // Decide where to go next based on role + first_login
       const { role, first_login, redirect_path } = response.data;
       let redirectPath = redirect_path || "/";
 
-      if (role === "student") {
-        // First login → student fills profile, second login → student home dashboard
-        redirectPath = first_login
-          ? "/studentDashboard/profile"
-          : "/studentDashboard/home";
-      } else if (role === "supervisor") {
-        // First login → consultant fills profile, second login → consultant home dashboard
-        redirectPath = first_login
-          ? "/ConsultantDashboard/ConsultantProfile"
-          : "/ConsultantDashboard/Consultanthome";
-      } else if (role === "admin") {
-        redirectPath = "/admin";
+      // For first login, redirect to FIRST-LOGIN-PROFILE route
+      if (first_login) {
+        if (role === "student") {
+          redirectPath = "/studentDashboard/first-login-profile"; // Changed from "/studentDashboard/profile"
+        } else if (role === "supervisor") {
+          redirectPath = "/ConsultantDashboard/first-login-profile"; //  Changed from "/ConsultantDashboard/ConsultantProfile"
+        }
+      } else {
+        // Normal login - use original paths
+        if (role === "student") {
+          redirectPath = "/studentDashboard/home";
+        } else if (role === "supervisor") {
+          redirectPath = "/ConsultantDashboard/Consultanthome";
+        } else if (role === "admin") {
+          redirectPath = "/admin";
+        }
       }
 
+      console.log("Login successful. Redirecting to:", redirectPath);
+      console.log("First login:", first_login);
+      console.log("Role:", role);
+      
       navigate(redirectPath);
     } catch (err) {
       if (err.response) {

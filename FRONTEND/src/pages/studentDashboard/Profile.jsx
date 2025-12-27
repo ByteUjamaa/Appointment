@@ -9,7 +9,6 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
 
-  // Fetch profile data
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -26,7 +25,6 @@ const Profile = () => {
         return;
       }
 
-      // Use correct endpoint with /api/
       const response = await fetch('http://localhost:8000/api/accounts/profile/', {
         method: 'GET',
         headers: {
@@ -37,6 +35,7 @@ const Profile = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Student profile data:', data);
         
         // Extract from nested user object or flat structure
         const flattenedData = {
@@ -74,40 +73,73 @@ const Profile = () => {
         return;
       }
 
+      console.log("Saving student profile:", updatedData);
+
+      const backendData = {
+        first_name: updatedData.user?.first_name || "",
+        last_name: updatedData.user?.last_name || "",
+        email: updatedData.user?.email || "",
+        phone: updatedData.phone || "",
+        course: updatedData.course || "",
+        year_of_study: updatedData.year_of_study || ""
+      };
+
+      // Validate required fields
+      if (!backendData.first_name || !backendData.last_name || !backendData.email) {
+        throw new Error("First name, last name, and email are required");
+      }
+
       const response = await fetch('http://localhost:8000/api/accounts/profile/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(updatedData)
+        body: JSON.stringify(backendData)
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Update successful:', data);
         
-        // Extract from nested user object or flat structure
-        const flattenedData = {
-          first_name: data.user?.first_name || data.first_name || "",
-          last_name: data.user?.last_name || data.last_name || "",
-          email: data.user?.email || data.email || "",
+        // Update local state immediately with the new data
+        setProfile({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          email: data.email || "",
           phone: data.phone || "",
           course: data.course || "",
           year_of_study: data.year_of_study || "",
-          username: data.user?.username || data.username || ""
-        };
+          username: data.username || ""
+        });
         
-        setProfile(flattenedData);
         setIsEditing(false);
         alert("Profile updated successfully!");
       } else {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.error || 'Update failed');
+        console.error('Update error:', errorData);
+        
+        let errorMessage = 'Update failed';
+        if (errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (typeof errorData === 'object') {
+          const fieldErrors = Object.entries(errorData)
+            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+            .join('; ');
+          if (fieldErrors) errorMessage = fieldErrors;
+        }
+        
+        throw new Error(errorMessage);
       }
     } catch (err) {
       console.error("Save error:", err);
       alert(`Error: ${err.message}`);
+
     }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
   };
 
   const getEmptyProfile = () => ({
@@ -128,13 +160,13 @@ const Profile = () => {
     );
   }
 
-  if (error && !profile) {
+  if (error && !profile?.first_name) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-red-600">Error: {error}</div>
         <button 
           onClick={fetchProfile}
-          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded"
+          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           Retry
         </button>
@@ -145,9 +177,10 @@ const Profile = () => {
   if (isEditing) {
     return (
       <ProfileForm 
+        role="student"
         initialData={profile}
         onSave={handleSave}
-        onCancel={() => setIsEditing(false)}
+        onCancel={handleCancelEdit}
       />
     );
   }
@@ -157,7 +190,7 @@ const Profile = () => {
       <div className="bg-white w-full max-w-xl p-8 rounded-2xl shadow-lg">
         
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          <div className="mb-4 p-3 bg-yellow-100 text-yellow-700 rounded-lg text-sm">
             Note: {error}
           </div>
         )}
@@ -186,13 +219,13 @@ const Profile = () => {
             <div>
               <label className="block text-sm text-gray-500 mb-1">First Name</label>
               <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-                {profile.first_name || "-"}
+                {profile?.first_name || "-"}
               </div>
             </div>
             <div>
               <label className="block text-sm text-gray-500 mb-1">Last Name</label>
               <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-                {profile.last_name || "-"}
+                {profile?.last_name || "-"}
               </div>
             </div>
           </div>
@@ -200,14 +233,14 @@ const Profile = () => {
           <div>
             <label className="block text-sm text-gray-500 mb-1">Email</label>
             <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-              {profile.email || "-"}
+              {profile?.email || "-"}
             </div>
           </div>
           
           <div>
             <label className="block text-sm text-gray-500 mb-1">Phone</label>
             <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-              {profile.phone || "-"}
+              {profile?.phone || "-"}
             </div>
           </div>
           
@@ -215,13 +248,13 @@ const Profile = () => {
             <div>
               <label className="block text-sm text-gray-500 mb-1">Course</label>
               <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-                {profile.course || "-"}
+                {profile?.course || "-"}
               </div>
             </div>
             <div>
               <label className="block text-sm text-gray-500 mb-1">Year of Study</label>
               <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-                {profile.year_of_study ? `Year ${profile.year_of_study}` : "-"}
+                {profile?.year_of_study ? `Year ${profile.year_of_study}` : "-"}
               </div>
             </div>
           </div>
