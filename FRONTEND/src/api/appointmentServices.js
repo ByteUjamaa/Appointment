@@ -31,6 +31,8 @@ const AppointmentService = {
   getRecentActivity:() => axiosInstance.get("/consultant/activity/").then((r) => r.data),
 
   getRequests:() => axiosInstance.get("/consultant/requests").then((r)=> r.data)
+
+
 };
 
 export default AppointmentService;

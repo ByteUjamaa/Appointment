@@ -1,10 +1,25 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import StatCard from "./components/StatCard";
 import { Clock, CheckCircle, XCircle, TrendingUp, Loader2 } from "lucide-react";
 import appointmentServices from "../../api/appointmentServices";
 
-export default function Consultanthome({ userName, currentUser }) {
- const displayName = userName ||currentUser?.username || "Supervisor";
+export default function Consultanthome({  currentUser }) {
+ const [displayName, setDisplayName ] = useState("Supervisor");
+
+  useEffect(() => {
+    // Check if currentUser prop exists
+    if (currentUser?.first_name) {
+      setDisplayName(currentUser.first_name);
+    } else {
+      // Fallback: try localStorage (for example after login)
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser?.first_name) {
+        setDisplayName(storedUser.first_name);
+      }
+    }
+  }, [currentUser]);
+
+
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);

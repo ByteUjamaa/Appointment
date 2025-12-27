@@ -6,7 +6,7 @@ from .views import (
     update_appointment_status,
     appointment_status_count,
     dashboard_summary,
-    consultant_stats, consultant_activity, consultant_requests
+    # consultant_stats, consultant_activity, consultant_requests
 )
 
 urlpatterns = [
