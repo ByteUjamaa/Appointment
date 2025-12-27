@@ -61,19 +61,19 @@ class Appointment(models.Model):
 
 
 
-class AppointmentResponse(models.Model):    
+class AppointmentResponse(models.Model):
     appointment = models.OneToOneField(
         Appointment,
         on_delete=models.CASCADE,
         related_name="response"
     )
-    
+
     student = models.ForeignKey(
         StudentProfile,
         on_delete=models.CASCADE,
         related_name="student_responses"
     )
-    
+
     supervisor = models.ForeignKey(
         SupervisorProfile,
         on_delete=models.CASCADE,
@@ -84,17 +84,28 @@ class AppointmentResponse(models.Model):
         ("Pending", "Pending"),
         ("Accepted", "Accepted"),
         ("Rejected", "Rejected"),
-        ("Completed", "Completed"),
     ]
-    
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="Pending"
     )
 
-    supervisor_comment = models.TextField(blank=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # Supervisor-selected appointment date & time
+    confirmed_datetime = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    # Supervisor message (optional)
+    supervisor_comment = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    # When supervisor responded
+    responded_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Response for {self.appointment} - {self.status}"
+        return f"{self.appointment} - {self.status}"
