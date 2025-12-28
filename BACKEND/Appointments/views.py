@@ -226,14 +226,25 @@ class AppointmentResponseView(APIView):
                 status=400
             )
 
-        serializer = AppointmentResponseCreateSerializer(data=request.data)
+        serializer = AppointmentResponseCreateSerializer(
+            data=request.data,
+            context={
+            'appointment': appointment,
+            'student': appointment.student,
+            'supervisor': supervisor
+        }
+            )
         serializer.is_valid(raise_exception=True)
 
+<<<<<<< HEAD
+        response = serializer.save()
+=======
         response = serializer.save(
             appointment=appointment,
             student=appointment.student, 
             supervisor=supervisor
         )
+>>>>>>> 6e7df995cceba8a2ce7d4419caf454da86971d31
 
         appointment.status = serializer.validated_data["status"]
         appointment.save()
