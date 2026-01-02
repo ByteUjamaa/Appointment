@@ -25,10 +25,19 @@ def login_view(request):
     access_token = str(refresh.access_token) # type: ignore
     refresh_token = str(refresh)
 
-    if user.first_login:
-        redirect_path = '/student/profile' if user.role == 'student' else '/supervisor/profile'
+    # Decide redirect based on role + first_login to match frontend routes
+    if user.role == 'student':
+        # First login → complete student profile, afterwards go to student home dashboard
+        redirect_path = '/studentDashboard/profile' if user.first_login else '/studentDashboard/home'
+    elif user.role == 'supervisor':
+        # First login → complete supervisor profile, afterwards go to consultant home dashboard
+        redirect_path = '/ConsultantDashboard/ConsultantProfile' if user.first_login else '/ConsultantDashboard/Consultanthome'
+    elif user.role == 'admin':
+        # Admins always go to admin dashboard layout
+        redirect_path = '/admin'
     else:
-        redirect_path = '/student/dashboard' if user.role == 'student' else '/supervisor/dashboard'
+        # Fallback – should normally not happen
+        redirect_path = '/'
 
     profile_data = None
     if user.role == 'student':
@@ -42,14 +51,18 @@ def login_view(request):
         # Fallback if profile doesn't exist
         profile_data = {}
 
-    return Response({
-        "message": "Login successful",
-        "role": user.role,
-        "user": profile_data,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "redirect_path": redirect_path
-    }, status=200)
+    return Response(
+        {
+            "message": "Login successful",
+            "role": user.role,
+            "first_login": user.first_login,
+            "user": profile_data,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "redirect_path": redirect_path,
+        },
+        status=200,
+    )
 
 
 

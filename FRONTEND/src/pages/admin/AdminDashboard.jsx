@@ -59,7 +59,7 @@ const createAppointmentType = (newAppointmentType) =>{
 
   return (
     <AdminContext.Provider value={contextValue}>
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
 
         {/* SIDEBAR */}
         <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} />

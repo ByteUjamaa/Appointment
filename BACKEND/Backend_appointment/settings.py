@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'Appointments',
     'rest_framework',
     'rest_framework.authtoken',
+    'Reports',
 ]
 
 MIDDLEWARE = [
@@ -152,6 +153,8 @@ SIMPLE_JWT = {
 
     # Refresh token lifetime
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7), 
+
+     
 }
 
 

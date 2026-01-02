@@ -1,65 +1,97 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; 
 
 const Login = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     if (!formData.username || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await api.post('/accounts/login/', {
+      const response = await axios.post("http://localhost:8000/api/accounts/login/", {
         username: formData.username,
         password: formData.password,
       });
 
-      // Save token and user details
-      if (response.data.token) localStorage.setItem('token', response.data.token);
-      if (response.data.user) localStorage.setItem('user', JSON.stringify(response.data.user));
-      if (response.data.role) localStorage.setItem('role', response.data.role);
-
-      // Redirect logic
-      let redirectPath = '/';
-      if (response.data.role === 'student') {
-        redirectPath = response.data.first_login
-          ? '/profile'
-          : '/studentDashboard/home';
-      } else if (response.data.role === 'supervisor') {
-        redirectPath = response.data.first_login
-          ? '/ConsultantDashboard/ConsultantProfile'
-          : '/ConsultantDashboard/Consultanthome';
+      // SAVE TOKENS AND USER DATA
+      if (response.data.access_token) {
+        localStorage.setItem("access_token", response.data.access_token);
       }
-      // const redirectPath = response.data.redirect_path;
-       navigate(redirectPath);
+      if (response.data.refresh_token) {
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+      }
+      if (response.data.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+      }
+      if (response.data.role) {
+        localStorage.setItem("role", response.data.role);
+      }
+      
+      //   Save first_login for first login flow
+      if (response.data.first_login !== undefined) {
+        localStorage.setItem("first_login", response.data.first_login);
+      }
+      
+      //   Save user_role for profile form
+      if (response.data.role) {
+        localStorage.setItem("user_role", response.data.role);
+      }
 
-      // navigate(redirectPath);
+      // Decide where to go next based on role + first_login
+      const { role, first_login, redirect_path } = response.data;
+      let redirectPath = redirect_path || "/";
 
+      // For first login, redirect to FIRST-LOGIN-PROFILE route
+      if (first_login) {
+        if (role === "student") {
+          redirectPath = "/studentDashboard/first-login-profile"; // Changed from "/studentDashboard/profile"
+        } else if (role === "supervisor") {
+          redirectPath = "/ConsultantDashboard/first-login-profile"; //  Changed from "/ConsultantDashboard/ConsultantProfile"
+        }
+      } else {
+        // Normal login - use original paths
+        if (role === "student") {
+          redirectPath = "/studentDashboard/home";
+        } else if (role === "supervisor") {
+          redirectPath = "/ConsultantDashboard/Consultanthome";
+        } else if (role === "admin") {
+          redirectPath = "/admin";
+        }
+      }
+
+      console.log("Login successful. Redirecting to:", redirectPath);
+      console.log("First login:", first_login);
+      console.log("Role:", role);
+      
+      navigate(redirectPath);
     } catch (err) {
       if (err.response) {
-        console.error('Backend error:', err.response.data);
-        setError(err.response.data.error || err.response.data.message || 'Login failed');
+        console.error("Backend error:", err.response.data);
+        setError(
+          err.response.data.error || err.response.data.message || "Login failed"
+        );
       } else if (err.request) {
-        console.error('No response from backend:', err.request);
-        setError('No response from server. Check your network.');
+        console.error("No response from backend:", err.request);
+        setError("No response from server. Check your network.");
       } else {
-        console.error('Error:', err.message);
+        console.error("Error:", err.message);
         setError(err.message);
       }
     } finally {
@@ -74,8 +106,12 @@ const Login = () => {
 
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-10 relative z-10">
         <div className="text-center mb-6">
-          <h1 className="text-gray-800 text-3xl font-bold mb-2">Portal Login</h1>
-          <p className="text-gray-500 text-sm">Sign in to access your dashboard</p>
+          <h1 className="text-gray-800 text-3xl font-bold mb-2">
+            Portal Login
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Sign in to access your dashboard
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full mb-6">
@@ -86,7 +122,10 @@ const Login = () => {
           )}
 
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 text-gray-900 font-medium text-sm">
+            <label
+              htmlFor="username"
+              className="block mb-2 text-gray-900 font-medium text-sm"
+            >
               Username
             </label>
             <input
@@ -105,7 +144,10 @@ const Login = () => {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block mb-2 text-gray-700 font-medium text-sm">
+            <label
+              htmlFor="password"
+              className="block mb-2 text-gray-700 font-medium text-sm"
+            >
               Password
             </label>
             <input
@@ -130,7 +172,7 @@ const Login = () => {
                        hover:shadow-blue-800/30 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
       </div>
