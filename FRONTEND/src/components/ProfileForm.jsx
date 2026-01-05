@@ -5,19 +5,40 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
   const isConsultant = !isStudent;
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    first_name: initialData.first_name || "",
-    last_name: initialData.last_name || "",
-    email: initialData.email || "",
-    phone: initialData.phone || "",
-    ...(isStudent && {
-      course: initialData.course || "",
-      year_of_study: initialData.year_of_study || ""
-    }),
-    ...(isConsultant && { 
-      title: initialData.title || "",
-      Availability: initialData.Availability || []
-    })
+  const [formData, setFormData] = useState(() => {
+    const baseData = {
+      first_name: initialData.first_name || "",
+      last_name: initialData.last_name || "",
+      email: initialData.email || "",
+      phone: initialData.phone || "",
+    };
+
+    if (isStudent) {
+      baseData.course = initialData.course || "";
+      baseData.year_of_study = initialData.year_of_study || "";
+    }
+
+    if (isConsultant) {
+      baseData.title = initialData.title || "";
+      
+      // Handle availability initialization
+      if (initialData.Availability && Array.isArray(initialData.Availability)) {
+        baseData.Availability = initialData.Availability;
+      } else if (initialData.availability_day_codes && Array.isArray(initialData.availability_day_codes)) {
+        // Convert day codes to display names
+        const dayCodeToDisplay = {
+          'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday',
+          'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
+        };
+        baseData.Availability = initialData.availability_day_codes.map(
+          code => dayCodeToDisplay[code] || code
+        );
+      } else {
+        baseData.Availability = [];
+      }
+    }
+
+    return baseData;
   });
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -28,16 +49,14 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    // Special handling for phone to allow only digits
-      if (name === 'phone') {
-    // Remove any non-digit characters
-    const digitsOnly = value.replace(/\D/g, '');
-    setFormData({ ...formData, [name]: digitsOnly });
-  } else {
-    setFormData({ ...formData, [name]: value });
-  }
+    
+    // Phone number validation - only allow digits
+    if (name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, '');
+      setFormData({ ...formData, [name]: digitsOnly });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const toggleDay = (day) => {
@@ -67,6 +86,9 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
           year_of_study: formData.year_of_study
         };
       } else {
+        // Convert display names to day codes for backend
+        const availableDaysCodes = (formData.Availability || []).map(day => dayMapping[day]);
+        
         dataToSave = {
           user: {
             first_name: formData.first_name,
@@ -75,7 +97,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
           },
           phone: formData.phone,
           title: formData.title,
-          available_days: formData.Availability.map(day => dayMapping[day])
+          available_days_input: availableDaysCodes
         };
       }
 
@@ -106,105 +128,119 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {isConsultant && (
-            <select
-              name="title"
-              value={formData.title || ""}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-            >
-              <option value="">Select Title</option>
-              <option value="Dr.">Dr.</option>
-              <option value="Prof.">Prof.</option>
-              <option value="Mr.">Mr.</option>
-              <option value="Ms.">Ms.</option>
-            </select>
+            <div>
+              <select
+                name="title"
+                value={formData.title || ""}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+              >
+                <option value="">Select Title</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Ms.">Ms.</option>
+              </select>
+            </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="first_name"
-              placeholder="First Name *"
-              value={formData.first_name}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              required
-            />
-            <input
-              type="text"
-              name="last_name"
-              placeholder="Last Name *"
-              value={formData.last_name}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              required
-            />
+            <div>
+              <input
+                type="text"
+                name="first_name"
+                placeholder="First Name *"
+                value={formData.first_name}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="text"
+                name="last_name"
+                placeholder="Last Name *"
+                value={formData.last_name}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                required
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email *"
-              value={formData.email}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              required
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone *"
-              value={formData.phone}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              required
-              pattern="[0-9]*"
-              inputMode="numeric"
-              title="Please enter only numbers (e.g., 255123456789)"
-            />
+            <div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email *"
+                value={formData.email}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Phone * (numbers only)"
+                value={formData.phone}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                required
+                pattern="[0-9]*"
+                inputMode="numeric"
+                title="Please enter only numbers"
+              />
+            </div>
           </div>
 
           {isStudent && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <select
-                name="course"
-                value={formData.course || ""}
-                onChange={handleChange}
-                className="border border-gray-300 rounded-lg p-3 w-full"
-              >
-                <option value="">Select Course</option>
-                <option value="CSN">CSN</option>
-                <option value="ISM">ISM</option>
-                <option value="DS">Data Science</option>
-              </select>
-              <select
-                name="year_of_study"
-                value={formData.year_of_study || ""}
-                onChange={handleChange}
-                className="border border-gray-300 rounded-lg p-3 w-full"
-              >
-                <option value="">Year of Study</option>
-                <option value="1">Year 1</option>
-                <option value="2">Year 2</option>
-                <option value="3">Year 3</option>
-              </select>
+              <div>
+                <select
+                  name="course"
+                  value={formData.course || ""}
+                  onChange={handleChange}
+                  className="border border-gray-300 rounded-lg p-3 w-full"
+                >
+                  <option value="">Select Course</option>
+                  <option value="CSN">CSN</option>
+                  <option value="ISM">ISM</option>
+                  <option value="DS">Data Science</option>
+                </select>
+              </div>
+              <div>
+                <select
+                  name="year_of_study"
+                  value={formData.year_of_study || ""}
+                  onChange={handleChange}
+                  className="border border-gray-300 rounded-lg p-3 w-full"
+                >
+                  <option value="">Year of Study</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                  <option value="3">Year 3</option>
+                </select>
+              </div>
             </div>
           )}
 
           {isConsultant && (
             <div>
-              <label className="block text-sm text-gray-600 mb-2">Availability</label>
+              <label className="block text-sm text-gray-600 mb-2">Availability (Select all that apply)</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {days.map(day => (
                   <button
                     key={day}
                     type="button"
                     onClick={() => toggleDay(day)}
-                    className={`p-2 rounded border ${
+                    className={`p-2 rounded border transition ${
                       formData.Availability?.includes(day) 
-                        ? 'bg-blue-100 border-blue-500' 
-                        : 'bg-gray-50 border-gray-300'
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'bg-gray-50 border-gray-300 hover:bg-gray-100'
                     }`}
                   >
                     {day}
@@ -219,7 +255,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
+                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition"
                 disabled={loading}
               >
                 Cancel
@@ -229,7 +265,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
             <button 
               type="submit"
               disabled={loading}
-              className={`${isFirstLogin ? 'w-full' : 'flex-1'} bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700`}
+              className={`${isFirstLogin ? 'w-full' : 'flex-1'} bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50`}
             >
               {loading ? "Saving..." : isFirstLogin ? "Save & Continue" : "Save Changes"}
             </button>
