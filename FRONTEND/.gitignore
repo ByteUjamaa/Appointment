@@ -31,4 +31,8 @@ __pycache__/
 *.pyo
 *.pyd
 
+#django
+db.sqlite3
 
+#os
+.BS_Store

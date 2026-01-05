@@ -1,17 +1,31 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import StatCard from "./components/StatCard";
-import { Clock, CheckCircle, XCircle, TrendingUp, Loader2 } from "lucide-react";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
 import appointmentServices from "../../api/appointmentServices";
 
-export default function Consultanthome({  currentUser }) {
- const [displayName, setDisplayName ] = useState("Supervisor");
+export default function Consultanthome({ currentUser }) {
+  /* ------------------------------
+     STATE
+  -------------------------------- */
+  const [displayName, setDisplayName] = useState("Supervisor");
+  const [stats, setStats] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  /* ------------------------------
+     SET USER DISPLAY NAME
+  -------------------------------- */
   useEffect(() => {
-    // Check if currentUser prop exists
     if (currentUser?.first_name) {
       setDisplayName(currentUser.first_name);
     } else {
-      // Fallback: try localStorage (for example after login)
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (storedUser?.first_name) {
         setDisplayName(storedUser.first_name);
@@ -19,12 +33,9 @@ export default function Consultanthome({  currentUser }) {
     }
   }, [currentUser]);
 
-
-  const [stats, setStats] = useState(null);
-  const [activity, setActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  /* ------------------------------
+     FETCH DASHBOARD DATA
+  -------------------------------- */
   useEffect(() => {
     async function fetchData() {
       try {
@@ -49,7 +60,54 @@ export default function Consultanthome({  currentUser }) {
     fetchData();
   }, []);
 
-  // Loading state
+  /* ------------------------------
+     ACTIVITY MESSAGE GENERATOR
+  -------------------------------- */
+  const getActivityMessage = (item = {}) => {
+    // 1️⃣ Prefer backend message/note
+    if (item.note && item.note.trim() !== "") {
+      return item.note;
+    }
+
+    const student = item.student_name || "A student";
+    const status = item.status?.toLowerCase();
+    const action = item.action?.toLowerCase();
+
+    // 2️⃣ Status-based message
+    if (status) {
+      switch (status) {
+        case "pending":
+          return `${student} submitted a new consultation request`;
+        case "accepted":
+          return `You accepted ${student}'s consultation request`;
+        case "rejected":
+          return `You rejected ${student}'s consultation request`;
+        case "completed":
+          return `Consultation with ${student} was completed`;
+        case "cancelled":
+          return `${student} cancelled the consultation request`;
+        default:
+          return `${student}'s consultation status was updated`;
+      }
+    }
+
+    // 3️⃣ Action-based fallback
+    if (action) {
+      return `Consultation activity: ${action.replace("_", " ")}`;
+    }
+
+    // 4️⃣ ID-based fallback
+    if (item.appointment_id) {
+      return `Consultation request #${item.appointment_id} was updated`;
+    }
+
+    // 5️⃣ Final fallback
+    return "A consultation activity occurred";
+  };
+
+  /* ------------------------------
+     LOADING STATE
+  -------------------------------- */
   if (loading) {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-96">
@@ -59,7 +117,9 @@ export default function Consultanthome({  currentUser }) {
     );
   }
 
-  // Error state
+  /* ------------------------------
+     ERROR STATE
+  -------------------------------- */
   if (error) {
     return (
       <div className="p-6">
@@ -70,6 +130,9 @@ export default function Consultanthome({  currentUser }) {
     );
   }
 
+  /* ------------------------------
+     DASHBOARD UI
+  -------------------------------- */
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-5">
@@ -79,7 +142,7 @@ export default function Consultanthome({  currentUser }) {
         Here’s an overview of your consultation requests
       </p>
 
-      {/* Stats Grid */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <StatCard
           icon={<Clock className="w-6 h-6" />}
@@ -111,14 +174,24 @@ export default function Consultanthome({  currentUser }) {
       <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
       <div className="bg-white p-5 rounded-xl shadow">
         {activity.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No recent activity</p>
+          <p className="text-gray-500 text-center py-8">
+            No recent activity
+          </p>
         ) : (
           activity.map((item, i) => (
             <div
-              key={item.id || i} // Prefer unique ID if available
-              className="p-3 border-b last:border-none text-gray-800"
+              key={item.id || i}
+              className="p-4 border-b last:border-none"
             >
-              {item.note || "No message"}
+              <p className="text-gray-800 font-medium">
+                {getActivityMessage(item)}
+              </p>
+
+              {item.created_at && (
+                <p className="text-sm text-gray-400 mt-1">
+                  {new Date(item.created_at).toLocaleString()}
+                </p>
+              )}
             </div>
           ))
         )}
@@ -126,4 +199,3 @@ export default function Consultanthome({  currentUser }) {
     </div>
   );
 }
-
