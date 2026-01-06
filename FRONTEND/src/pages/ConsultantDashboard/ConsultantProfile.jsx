@@ -90,7 +90,6 @@ const ConsultantProfile = () => {
           if (data.available_days.length > 0) {
             const firstItem = data.available_days[0];
             
-            // Display names from serializer ['Monday', 'Tuesday']
             if (typeof firstItem === 'string' && firstItem.length > 3) {
               availabilityDisplay = data.available_days;
               // Convert to day codes
@@ -104,7 +103,7 @@ const ConsultantProfile = () => {
               availabilityDayCodes = data.available_days;
               availabilityDisplay = data.available_days.map(code => dayMapping[code] || code);
             }
-            // Objects with day property [{id: 1, day: 'mon'}, ...]
+        
             else if (typeof firstItem === 'object' && firstItem.day) {
               availabilityDayCodes = data.available_days.map(item => item.day);
               availabilityDisplay = data.available_days.map(item => dayMapping[item.day] || item.day);
@@ -151,7 +150,7 @@ const ConsultantProfile = () => {
       // Get selected days from form
       const selectedDayCodes = updatedData.available_days_input || [];
       
-      // Prepare data for backend
+     
       const backendData = {
         title: updatedData.title || "",
         phone: updatedData.phone || "",
