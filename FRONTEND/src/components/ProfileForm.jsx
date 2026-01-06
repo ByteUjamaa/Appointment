@@ -25,7 +25,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
       if (initialData.Availability && Array.isArray(initialData.Availability)) {
         baseData.Availability = initialData.Availability;
       } else if (initialData.availability_day_codes && Array.isArray(initialData.availability_day_codes)) {
-        // Convert day codes to display names
+        
         const dayCodeToDisplay = {
           'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday',
           'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
@@ -86,7 +86,7 @@ const ProfileForm = ({ role = "student", onSave, onCancel, initialData = {}, isF
           year_of_study: formData.year_of_study
         };
       } else {
-        // Convert display names to day codes for backend
+       
         const availableDaysCodes = (formData.Availability || []).map(day => dayMapping[day]);
         
         dataToSave = {
