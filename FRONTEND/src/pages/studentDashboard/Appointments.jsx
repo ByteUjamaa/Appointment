@@ -1,4 +1,11 @@
-import { Calendar, Notebook, Clock, ChevronDown, MessageSquare, Loader2 } from "lucide-react";
+import {
+  Calendar,
+  Notebook,
+  Clock,
+  ChevronDown,
+  MessageSquare,
+  Loader2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import AppointmentService from "../../api/appointmentServices";
 
@@ -43,7 +50,13 @@ function NewAppointmentModal({ isOpen, onClose, onCreate }) {
     try {
       await onCreate(form);
       onClose();
-      setForm({ teacher: "", appointment_type: "", date: "", time: "", note: "" });
+      setForm({
+        teacher: "",
+        appointment_type: "",
+        date: "",
+        time: "",
+        note: "",
+      });
     } catch (err) {
       console.error("Failed to create appointment", err);
       alert("Failed to book appointment. Please try again.");
@@ -55,7 +68,9 @@ function NewAppointmentModal({ isOpen, onClose, onCreate }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4 shadow-xl">
-        <h2 className="text-2xl font-bold text-gray-900">Book New Appointment</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Book New Appointment
+        </h2>
 
         {loading ? (
           <p className="text-center text-gray-600">Loading options...</p>
@@ -70,15 +85,18 @@ function NewAppointmentModal({ isOpen, onClose, onCreate }) {
               <option value="">Select Teacher</option>
               {teachers.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {`${t.title || ""} ${t.first_name || ""} ${t.last_name || ""}`.trim() ||
-                    "Unnamed Supervisor"}
+                  {`${t.title || ""} ${t.first_name || ""} ${
+                    t.last_name || ""
+                  }`.trim() || "Unnamed Supervisor"}
                 </option>
               ))}
             </select>
 
             <select
               value={form.appointment_type}
-              onChange={(e) => setForm({ ...form, appointment_type: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, appointment_type: e.target.value })
+              }
               className="w-full border border-gray-300 p-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500"
               required
             >
@@ -95,7 +113,7 @@ function NewAppointmentModal({ isOpen, onClose, onCreate }) {
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              min={today}  // This blocks all past dates
+              min={today} // This blocks all past dates
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -199,7 +217,9 @@ export default function Appointments() {
   const fetchResponse = async (appointmentId) => {
     setLoadingResponses((prev) => ({ ...prev, [appointmentId]: true }));
     try {
-      const data = await AppointmentService.getAppointmentResponse(appointmentId);
+      const data = await AppointmentService.getAppointmentResponse(
+        appointmentId
+      );
       setResponses((prev) => ({ ...prev, [appointmentId]: data }));
     } catch (err) {
       if (err.response?.status === 404) {
@@ -220,7 +240,10 @@ export default function Appointments() {
     }));
 
     // Fetch only when expanding and not already loaded
-    if (!expandedAppointments[appointmentId] && responses[appointmentId] === undefined) {
+    if (
+      !expandedAppointments[appointmentId] &&
+      responses[appointmentId] === undefined
+    ) {
       fetchResponse(appointmentId);
     }
   };
@@ -251,7 +274,11 @@ export default function Appointments() {
   };
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-800">Loading appointments...</div>;
+    return (
+      <div className="p-6 text-center text-gray-800">
+        Loading appointments...
+      </div>
+    );
   }
 
   return (
@@ -259,7 +286,9 @@ export default function Appointments() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Appointments</h1>
-          <p className="text-gray-600">Book and track your supervision sessions</p>
+          <p className="text-gray-600">
+            Book and track your supervision sessions
+          </p>
         </div>
         <button
           onClick={() => setOpenModal(true)}
@@ -271,9 +300,14 @@ export default function Appointments() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {["pending", "accepted", "completed", "rejected"].map((key) => (
-          <div key={key} className="bg-white border-2 border-blue-200 rounded-xl p-6 text-center shadow-sm">
+          <div
+            key={key}
+            className="bg-white border-2 border-blue-200 rounded-xl p-6 text-center shadow-sm"
+          >
             <p className="text-gray-600 capitalize">{key}</p>
-            <p className="text-3xl font-bold mt-2 text-blue-600">{statusCount[key] || 0}</p>
+            <p className="text-3xl font-bold mt-2 text-blue-600">
+              {statusCount[key] || 0}
+            </p>
           </div>
         ))}
       </div>
@@ -284,7 +318,9 @@ export default function Appointments() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-6 py-2 rounded-full font-medium capitalize transition-all ${
-              activeTab === tab ? "bg-blue-600 text-white shadow" : "text-gray-700 hover:bg-gray-200"
+              activeTab === tab
+                ? "bg-blue-600 text-white shadow"
+                : "text-gray-700 hover:bg-gray-200"
             }`}
           >
             {tab === "all" ? "All" : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -293,28 +329,42 @@ export default function Appointments() {
         ))}
       </div>
 
-     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         {filteredAppointments.length === 0 ? (
-          <p className="col-span-full text-center text-gray-500 py-10">No appointments found.</p>
+          <p className="col-span-full text-center text-gray-500 py-10">
+            No appointments found.
+          </p>
         ) : (
           filteredAppointments.map((a) => {
             const teacher = teachers.find((t) => t.id === a.supervisor);
-            const teacherName =
-              teacher
-                ? `${teacher.title || ""} ${teacher.first_name || ""} ${teacher.last_name || ""}`.trim() ||
-                  "Unknown Teacher"
-                : "Unknown Teacher";
+            const teacherName = teacher
+              ? `${teacher.title || ""} ${teacher.first_name || ""} ${
+                  teacher.last_name || ""
+                }`.trim() || "Unknown Teacher"
+              : "Unknown Teacher";
 
             const aptType = types.find((t) => t.id === a.appointment_type);
-            const typeLabel = aptType?.label || aptType?.value || "General Meeting";
+            const typeLabel =
+              aptType?.label || aptType?.value || "General Meeting";
 
             const currentStatus = a.status?.toLowerCase() || "pending";
-            const isFinalStatus = ["accepted", "rejected", "completed"].includes(currentStatus);
+            const isFinalStatus = [
+              "accepted",
+              "rejected",
+              "completed",
+            ].includes(currentStatus);
 
             // Per-card response state
             const responseData = responses[a.id];
             const isLoading = loadingResponses[a.id];
-            const hasResponse = !!responseData?.supervisor_comment?.trim();
+            const hasResponse = !!(
+              responseData?.supervisor_comment?.trim() ||
+              responseData?.confirmed_datetime?.trim()
+            );
+            // const hasResponse = !!responseData?.confirmed_date_time?.trim();
+            console.log(responseData?.supervisor_comment);
+            console.log(responseData?.confirmed_datetime);
+
             const isExpanded = !!expandedAppointments[a.id];
 
             return (
@@ -323,7 +373,9 @@ export default function Appointments() {
                 className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 hover:shadow-lg transition-shadow"
               >
                 <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-lg text-gray-900">{teacherName}</h3>
+                  <h3 className="font-bold text-lg text-gray-900">
+                    {teacherName}
+                  </h3>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
                       statusColors[currentStatus] || "bg-gray-100 text-gray-800"
@@ -370,7 +422,9 @@ export default function Appointments() {
                       ) : (
                         <ChevronDown
                           size={20}
-                          className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                          className={`transition-transform duration-200 ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
                         />
                       )}
                     </button>
@@ -379,7 +433,10 @@ export default function Appointments() {
                       <div className="mt-4 space-y-3">
                         {isLoading ? (
                           <p className="text-center text-gray-500 py-4">
-                            <Loader2 className="inline animate-spin mr-2" size={16} />
+                            <Loader2
+                              className="inline animate-spin mr-2"
+                              size={16}
+                            />
                             Loading response...
                           </p>
                         ) : hasResponse ? (
@@ -388,10 +445,21 @@ export default function Appointments() {
                               <p className="text-gray-800 whitespace-pre-wrap">
                                 {responseData.supervisor_comment}
                               </p>
+                                <p className="text-gray-800 whitespace-pre-wrap">
+                                {responseData.confirmed_datetime
+                                  ? `Confirmed Date & Time: ${new Date(
+                                      responseData.confirmed_datetime
+                                    ).toLocaleString()}`
+                                  : ""}
+                              </p>
+                            
                             </div>
                             {responseData.updated_at && (
                               <p className="text-xs text-gray-500">
-                                Responded on: {new Date(responseData.updated_at).toLocaleString()}
+                                Responded on:{" "}
+                                {new Date(
+                                  responseData.updated_at
+                                ).toLocaleString()}
                               </p>
                             )}
                           </>
@@ -410,7 +478,11 @@ export default function Appointments() {
         )}
       </div>
 
-      <NewAppointmentModal isOpen={openModal} onClose={() => setOpenModal(false)} onCreate={handleCreate} />
+      <NewAppointmentModal
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+        onCreate={handleCreate}
+      />
     </div>
   );
 }
