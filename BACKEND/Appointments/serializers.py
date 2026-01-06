@@ -19,22 +19,24 @@ class AppointmentResponseSerializer(serializers.ModelSerializer):
             "id", "appointment", "status", "supervisor_comment",
             'confirmed_datetime', "responded_at", "student_name", "supervisor_name",
         ]
-
 class AppointmentSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(
-        source='student.user.get_first_name', read_only=True
-    )
+    student_name = serializers.SerializerMethodField()
     status_label = serializers.CharField(source='status', read_only=True)
-    response = AppointmentResponseSerializer(read_only=True)  # ✅ Now this works!
+    response = AppointmentResponseSerializer(read_only=True)
 
     class Meta:
         model = Appointment
         fields = [
-            'id', 'student', "student_name", 'supervisor', 'appointment_type',
-            'date', 'time', 'description', 'status', 'status_label',
-            'created_at', 'response'
+            'id', 'student', 'student_name', 'supervisor',
+            'appointment_type', 'date', 'time', 'description',
+            'status', 'status_label', 'created_at', 'response'
         ]
         read_only_fields = ['student', 'status', 'created_at']
+
+    def get_student_name(self, obj):
+        user = obj.student.user
+        return user.get_full_name() or user.username
+
 
 class AppointmentResponseCreateSerializer(serializers.ModelSerializer):
     class Meta:
