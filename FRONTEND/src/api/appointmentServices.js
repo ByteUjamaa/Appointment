@@ -1,6 +1,7 @@
 import axiosInstance from "./axiosInstance";
 
 const AppointmentService = {
+  // Appointments
   getAppointmentTypes: () =>
     axiosInstance.get("/appointments/types/").then((r) => r.data),
 
@@ -13,6 +14,11 @@ const AppointmentService = {
   getAppointments: () =>
     axiosInstance.get("/appointments/").then((r) => r.data),
 
+  getAppointmentResponse: (appointmentId) =>
+    axiosInstance
+      .get(`/appointments/${appointmentId}/response/`)
+      .then((r) => r.data),
+
   getStatusCount: () =>
     axiosInstance.get("/appointments/status-count/").then((r) => r.data),
 
@@ -21,30 +27,27 @@ const AppointmentService = {
       .patch(`/appointments/${id}/update-status/`, { status })
       .then((r) => r.data),
 
+  // Dashboard
   getDashboardSummary: () =>
     axiosInstance.get("/appointments/dashboard/summary/").then((r) => r.data),
 
-  getAppointmentResponse: (appointmentId) =>
-    axiosInstance
-      .get(`/appointments/${appointmentId}/response/`)
-      .then((r) => r.data),
+  getDashboardStats: () =>
+    axiosInstance.get("/consultant/stats").then((r) => r.data),
 
-  getDashboardStats: () => axiosInstance.get("/consultant/stats").then((r) => r.data),
+  getRecentActivity: () =>
+    axiosInstance.get("/consultant/activity/").then((r) => r.data),
 
-  getRecentActivity: () => axiosInstance.get("/consultant/activity/").then((r) => r.data),
+  getRequests: () =>
+    axiosInstance.get("/consultant/requests").then((r) => r.data),
 
-  getRequests: () => axiosInstance.get("/consultant/requests").then((r) => r.data),
-
-  
+  // ✅ Reports
   getReports: () =>
-    axiosInstance.get("/reports/create/").then((r) => r.data),
+    axiosInstance.get("/reports/create").then((r) => r.data),
 
-  // Create a new report
-  createReport: (data) =>
-    axiosInstance.post("/reports/create/", data).then((r) => r.data),
-
-   getReports: () =>
-    axiosInstance.get("/reports/create/").then((r) => r.data),
+  getReportsByStudent: (studentId) =>
+    axiosInstance
+      .get(`/reports/create/?student=${studentId}`)
+      .then((r) => r.data),
 
   createReport: (data) =>
     axiosInstance.post("/reports/create/", data).then((r) => r.data),

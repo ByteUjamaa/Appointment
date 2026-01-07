@@ -34,5 +34,4 @@ __pycache__/
 #django
 db.sqlite3
 
-#os
-.BS_Store
+
