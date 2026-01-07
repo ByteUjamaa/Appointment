@@ -8,7 +8,7 @@ const ConsultantProfile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
-  const [availabilityOptions, setAvailabilityOptions] = useState([]);
+  const [ setAvailabilityOptions] = useState([]);
 
   // Day mapping
   const dayMapping = {
@@ -16,10 +16,7 @@ const ConsultantProfile = () => {
     'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
   };
 
-  const reverseDayMapping = {
-    'Monday': 'mon', 'Tuesday': 'tue', 'Wednesday': 'wed',
-    'Thursday': 'thu', 'Friday': 'fri', 'Saturday': 'sat'
-  };
+ 
 
   useEffect(() => { 
     fetchAvailabilityOptions();
