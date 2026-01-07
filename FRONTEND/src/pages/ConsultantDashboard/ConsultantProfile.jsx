@@ -144,6 +144,7 @@ const ConsultantProfile = () => {
         last_name: lastName,
         email: email,
         available_days: profile?.original_available_days || [] // Send back exactly what we got
+      
       };
 
       console.log("Sending to backend (with original available_days):", backendData);
