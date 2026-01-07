@@ -54,4 +54,4 @@ BACKEND/db.sqlite3
 # SQLite DB
 db.sqlite3
 
-node_modules/
+node_modules/BACKEND/db.sqlite3
