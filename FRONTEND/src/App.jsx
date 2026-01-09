@@ -18,6 +18,7 @@ import Dashboard from './pages/ConsultantDashboard/Dashboard';
 import Consultanthome from './pages/ConsultantDashboard/Consultanthome';
 import Requests from './pages/ConsultantDashboard/Requests';
 import ConsultantProfile from './pages/ConsultantDashboard/ConsultantProfile';
+import ConsultantReports from './pages/ConsultantDashboard/ConsultantReports';
 
 // Admin Layout & Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -65,6 +66,7 @@ function App() {
               <Route path="Consultanthome" element={<Consultanthome />} />
               <Route path="requests" element={<Requests />} />
               <Route path="ConsultantProfile" element={<ConsultantProfile />} />
+              <Route path="ConsultantReports" element={<ConsultantReports />} />
             </Route>
           </Route>
 

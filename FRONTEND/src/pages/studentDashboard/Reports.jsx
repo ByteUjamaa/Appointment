@@ -66,16 +66,21 @@ function ReportModal({
       content: form.description.trim(),
     };
 
-    if (isEditing) {
-      // Update draft first
-      await onUpdate(editReport.id, reportData);
-      // Then submit
-      await AppointmentService.submitReport(editReport.id);
-    } else {
-      // Create draft
-      const newReport = await onCreate(reportData);
-      // Submit it
-      await AppointmentService.submitReport(newReport.id);
+    try {
+      if (isEditing) {
+        await onUpdate(editReport.id, reportData);
+        await AppointmentService.submitReport(editReport.id);
+      } else {
+        const newReport = await onCreate(reportData);
+        await AppointmentService.submitReport(newReport.id);
+      }
+      onClose();
+    } catch (err) {
+      console.error("Failed to submit report:", err);
+      alert(
+        "Failed to submit report: " +
+          (err.response?.data?.detail || err.message)
+      );
     }
 
     onClose();
@@ -138,7 +143,13 @@ function ReportModal({
                     }`.trim() || "Unknown Supervisor"
                   : "Unknown Supervisor";
 
-                const typeLabel = a.appointment_type_label || "Meeting";
+                const appointmentTypes = {
+                  1: "Consultation",
+                  2: "Project",
+                  3: "Academic",
+                };
+                const typeLabel =
+                  appointmentTypes[a.appointment_type] || "Meeting";
 
                 return (
                   <option key={a.id} value={a.id}>

@@ -42,7 +42,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </NavLink>
 
         <NavLink
-          to="reports"
+          to="Consultantreports"
           className={({ isActive }) =>
             `${linkClasses} ${
               isActive

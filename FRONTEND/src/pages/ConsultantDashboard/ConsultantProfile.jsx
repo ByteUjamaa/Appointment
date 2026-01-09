@@ -8,41 +8,62 @@ const ConsultantProfile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
-  const [availabilityOptions, setAvailabilityOptions] = useState([]); // Store with IDs
+  const [ setAvailabilityOptions] = useState([]);
+
+  // Day mapping
+  const dayMapping = {
+    'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday',
+    'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
+  };
+
+ 
 
   useEffect(() => { 
+    fetchAvailabilityOptions();
     fetchProfile();
-    // Try to fetch availability options if endpoint exists
-    // fetchAvailabilityOptions();
   }, []);
 
-  // Try different endpoints for availability
+  // Fetch availability options from backend
   const fetchAvailabilityOptions = async () => {
-    const endpoints = [
-      'http://localhost:8000/api/availability/',
-      'http://localhost:8000/api/availabilities/',
-      'http://localhost:8000/api/days/',
-      'http://localhost:8000/api/available-days/'
-    ];
-    
-    for (const endpoint of endpoints) {
-      try {
-        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
-        const response = await fetch(endpoint, {
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Availability options found at', endpoint, ':', data);
-          setAvailabilityOptions(data);
-          return;
+    try {
+      const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+      const endpoints = [
+        'http://localhost:8000/api/availability/',
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setAvailabilityOptions(data);
+            return;
+          }
+        } catch (err) {
+          continue;
         }
-      } catch (err) {
-        // Continue to next endpoint
       }
+      
+      // Fallback to default days
+      const defaultDays = [
+        { id: 1, day: 'mon', display_name: 'Monday' },
+        { id: 2, day: 'tue', display_name: 'Tuesday' },
+        { id: 3, day: 'wed', display_name: 'Wednesday' },
+        { id: 4, day: 'thu', display_name: 'Thursday' },
+        { id: 5, day: 'fri', display_name: 'Friday' },
+        { id: 6, day: 'sat', display_name: 'Saturday' }
+      ];
+      setAvailabilityOptions(defaultDays);
+      
+    } catch (err) {
+      console.error('Error fetching availability:', err);
     }
-    console.log('No availability endpoint found');
   };
 
   const fetchProfile = async () => {
@@ -57,44 +78,32 @@ const ConsultantProfile = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Full profile data:', data);
         
-        // Process available days - check the actual structure
+        // Process available days
         let availabilityDisplay = [];
-        let availabilityIds = [];
+        let availabilityDayCodes = [];
         
         if (data.available_days && Array.isArray(data.available_days)) {
           if (data.available_days.length > 0) {
             const firstItem = data.available_days[0];
             
-            // Check what format we're getting
-            console.log('First available_day item:', firstItem);
-            console.log('Type:', typeof firstItem);
-            
-            // If it's IDs [1, 2, 3]
-            if (typeof firstItem === 'number') {
-              availabilityIds = data.available_days;
-              availabilityDisplay = data.available_days.map(id => `Day ID: ${id}`);
-            }
-            // If it's objects [{id: 1, day: 'mon'}]
-            else if (typeof firstItem === 'object' && firstItem.day) {
-              availabilityIds = data.available_days.map(item => item.id);
-              availabilityDisplay = data.available_days.map(item => {
-                const dayMap = {
-                  'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday',
-                  'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
-                };
-                return dayMap[item.day] || item.day;
+            if (typeof firstItem === 'string' && firstItem.length > 3) {
+              availabilityDisplay = data.available_days;
+              // Convert to day codes
+              availabilityDayCodes = data.available_days.map(dayName => {
+                const foundDay = Object.entries(dayMapping).find(([code, name]) => name === dayName);
+                return foundDay ? foundDay[0] : dayName.toLowerCase().slice(0, 3);
               });
             }
-            // If it's strings ['mon', 'tue']
+            // Day codes ['mon', 'tue']
             else if (typeof firstItem === 'string') {
-              const dayMap = {
-                'mon': 'Monday', 'tue': 'Tuesday', 'wed': 'Wednesday',
-                'thu': 'Thursday', 'fri': 'Friday', 'sat': 'Saturday'
-              };
-              availabilityDisplay = data.available_days.map(day => dayMap[day] || day);
-              // We don't have IDs for strings, so we'll need to handle updates differently
+              availabilityDayCodes = data.available_days;
+              availabilityDisplay = data.available_days.map(code => dayMapping[code] || code);
+            }
+        
+            else if (typeof firstItem === 'object' && firstItem.day) {
+              availabilityDayCodes = data.available_days.map(item => item.day);
+              availabilityDisplay = data.available_days.map(item => dayMapping[item.day] || item.day);
             }
           }
         }
@@ -106,9 +115,8 @@ const ConsultantProfile = () => {
           email: data.email || "",
           phone: data.phone || "",
           Availability: availabilityDisplay,
-          availability_ids: availabilityIds, // Store IDs if we have them
+          availability_day_codes: availabilityDayCodes,
           username: data.username || "",
-          original_available_days: data.available_days // Keep original for debugging
         });
         setError("");
       } else {
@@ -127,7 +135,7 @@ const ConsultantProfile = () => {
       const token = localStorage.getItem('access_token') || localStorage.getItem('token');
       if (!token) { alert("Please login"); return; }
 
-      // Extract from nested structure
+      // Extract from ProfileForm
       const firstName = updatedData.user?.first_name || "";
       const lastName = updatedData.user?.last_name || "";
       const email = updatedData.user?.email || "";
@@ -136,17 +144,18 @@ const ConsultantProfile = () => {
         throw new Error("First name, last name, and email are required");
       }
 
-      // Option 1: Try sending what the backend originally sent us back
+      // Get selected days from form
+      const selectedDayCodes = updatedData.available_days_input || [];
+      
+     
       const backendData = {
         title: updatedData.title || "",
         phone: updatedData.phone || "",
         first_name: firstName,
         last_name: lastName,
         email: email,
-        available_days: profile?.original_available_days || [] // Send back exactly what we got
+        available_days_input: selectedDayCodes
       };
-
-      console.log("Sending to backend (with original available_days):", backendData);
 
       const response = await fetch('http://localhost:8000/api/accounts/profile/', {
         method: 'PUT',
@@ -157,37 +166,25 @@ const ConsultantProfile = () => {
       const responseData = await response.json();
       
       if (response.ok) {
-        console.log('Update successful:', responseData);
-        alert("Profile updated successfully!");
-        fetchProfile(); // Refresh
-        setIsEditing(false);
-      } else {
-        console.error("Error response:", responseData);
+        // Update local state with selected days
+        const displayDays = selectedDayCodes.map(day => dayMapping[day] || day);
         
-        // If still failing, try without available_days completely
-        if (responseData.available_days && responseData.available_days.includes("Incorrect type")) {
-          console.log("Trying without available_days field...");
-          
-          const backupData = { ...backendData };
-          delete backupData.available_days; // Remove the field entirely
-          
-          const backupResponse = await fetch('http://localhost:8000/api/accounts/profile/', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(backupData)
-          });
-          
-          if (backupResponse.ok) {
-            alert("Profile updated! (Availability days unchanged)");
-            fetchProfile();
-            setIsEditing(false);
-          } else {
-            const backupError = await backupResponse.json().catch(() => ({}));
-            throw new Error(backupError.detail || 'Update failed even without available_days');
-          }
-        } else {
-          throw new Error(responseData.detail || 'Update failed');
-        }
+        setProfile(prev => ({
+          ...prev,
+          title: updatedData.title || "",
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: updatedData.phone || "",
+          Availability: displayDays,
+          availability_day_codes: selectedDayCodes
+        }));
+        
+        alert("Profile updated successfully!");
+        setIsEditing(false);
+        fetchProfile();
+      } else {
+        throw new Error(responseData.detail || 'Update failed');
       }
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -196,13 +193,24 @@ const ConsultantProfile = () => {
   };
 
   const handleCancelEdit = () => setIsEditing(false);
+  
   const getEmptyProfile = () => ({ 
     title: "", first_name: "", last_name: "", email: "", 
-    phone: "", Availability: [], username: "" 
+    phone: "", Availability: [], availability_day_codes: [], username: "" 
   });
 
   if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-  if (isEditing) return <ProfileForm role="teacher" initialData={profile} onSave={handleSaveProfile} onCancel={handleCancelEdit} />;
+  
+  if (isEditing) {
+    return (
+      <ProfileForm 
+        role="teacher"  
+        initialData={profile}
+        onSave={handleSaveProfile}
+        onCancel={handleCancelEdit}
+      />
+    );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-purple-50 to-white p-4">
@@ -222,19 +230,49 @@ const ConsultantProfile = () => {
         </div>
 
         <div className="space-y-4">
-          <div><label className="block text-sm text-gray-500 mb-1">Title</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile?.title || "-"}</div></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className="block text-sm text-gray-500 mb-1">First Name</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile?.first_name || "-"}</div></div>
-            <div><label className="block text-sm text-gray-500 mb-1">Last Name</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile?.last_name || "-"}</div></div>
+          <div>
+            <label className="block text-sm text-gray-500 mb-1">Title</label>
+            <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+              {profile?.title || "-"}
+            </div>
           </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className="block text-sm text-gray-500 mb-1">Email</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile?.email || "-"}</div></div>
-            <div><label className="block text-sm text-gray-500 mb-1">Phone</label><div className="border border-gray-300 rounded-lg p-3 bg-gray-50">{profile?.phone || "-"}</div></div>
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">First Name</label>
+              <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+                {profile?.first_name || "-"}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">Last Name</label>
+              <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+                {profile?.last_name || "-"}
+              </div>
+            </div>
           </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">Email</label>
+              <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+                {profile?.email || "-"}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">Phone</label>
+              <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+                {profile?.phone || "-"}
+              </div>
+            </div>
+          </div>
+          
           <div>
             <label className="block text-sm text-gray-500 mb-1">Availability</label>
             <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[3rem]">
-              {profile?.Availability && profile.Availability.length > 0 ? profile.Availability.join(", ") : "Not specified"}
+              {profile?.Availability && profile.Availability.length > 0 
+                ? profile.Availability.join(", ") 
+                : "Not specified"}
             </div>
           </div>
         </div>

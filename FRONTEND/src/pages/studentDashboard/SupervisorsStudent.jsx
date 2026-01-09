@@ -11,7 +11,9 @@ function SupervisorsStudent() {
 
  const getAvailableDays = (supervisor) => {
   return supervisor.available_days || [];
+
 };
+
 
 
   useEffect(() => {
