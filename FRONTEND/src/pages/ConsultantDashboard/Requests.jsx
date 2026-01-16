@@ -16,6 +16,10 @@ const Requests = () => {
     sessionDate: "",
     sessionTime: "",
   });
+  
+  const Appointment_type=[
+   
+  ]
 
   // Fetch requests on mount
   useEffect(() => {
@@ -229,9 +233,9 @@ const Requests = () => {
                 </p>
               )}
 
-              {req.consultant_response && (
+              {req.response && (
                 <p className="mt-2 text-sm text-gray-700">
-                  <strong>Response:</strong> {req.consultant_response}
+                  <strong>Response:</strong> {req.response}
                 </p>
               )}
 
@@ -289,9 +293,44 @@ const Requests = () => {
                   : modal.type === "complete"
                   ? "Submit Response"
                   : "Request Details"}
+                
               </h3>
 
-              <p className="text-lg text-gray-800 font-medium mb-6">
+
+{modal.type === "view" && (
+    console.log(selectedRequest),
+
+  <div className="space-y-3 text-gray-700">
+    <p><strong>Title:</strong> {selectedRequest.Appointment_type}</p>
+    <p><strong>Student:</strong> {selectedRequest.student || selectedRequest.student_name}</p>
+    <p><strong>Status:</strong> {selectedRequest.status}</p>
+    <p><strong>Date:</strong> {selectedRequest.date || selectedRequest.created_at}</p>
+  
+    <div>
+      <strong>Description:</strong>
+      <p className="text-gray-600 mt-1">
+        {selectedRequest.description || "No description"}
+      </p>
+    </div>
+
+  {selectedRequest.appointment && (
+    <p className="text-green-700">
+      <strong>Scheduled:</strong> {selectedRequest.appointment}
+    </p>
+  )}
+
+    {selectedRequest.consultant_response && (
+      <div>
+        <strong>Consultant Response:</strong>
+        <p className="text-gray-600 mt-1">
+          {selectedRequest.consultant_response}
+        </p>
+      </div>
+    )}
+  </div>
+)}
+
+           <p className="text-lg text-gray-800 font-medium mb-6">
                 {selectedRequest.title}
               </p>
 
