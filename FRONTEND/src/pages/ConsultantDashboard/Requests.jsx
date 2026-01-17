@@ -12,14 +12,10 @@ const Requests = () => {
     open: false,
     type: "", // "view", "accept", "reject", "complete"
     requestId: null,
-    reason: "", // Consultant's response
+    reason: "",
     sessionDate: "",
     sessionTime: "",
   });
-  
-  const Appointment_type=[
-   
-  ]
 
   // Fetch requests on mount
   useEffect(() => {
@@ -35,7 +31,6 @@ const Requests = () => {
         setLoading(false);
       }
     };
-
     fetchRequests();
   }, []);
 
@@ -45,7 +40,7 @@ const Requests = () => {
       open: true,
       type,
       requestId: id,
-      reason: req?.consultant_response || "", // show existing response if any
+      reason: req?.consultant_response || "",
       sessionDate: req?.sessionDate || "",
       sessionTime: req?.sessionTime || "",
     });
@@ -72,20 +67,13 @@ const Requests = () => {
       setLoading(true);
       let newStatus = "";
 
-      if (modal.type === "accept") {
-        newStatus = "Accepted";
-      } else if (modal.type === "reject") {
-        newStatus = "Rejected";
-      } else if (modal.type === "complete") {
-        newStatus = "Completed";
-      } else {
-        return;
-      }
+      if (modal.type === "accept") newStatus = "Accepted";
+      else if (modal.type === "reject") newStatus = "Rejected";
+      else if (modal.type === "complete") newStatus = "Completed";
+      else return;
 
-      // Send update to backend
       await appointmentService.updateStatus(modal.requestId, newStatus, modal.reason);
 
-      // Update local state
       setRequests((prev) =>
         prev.map((req) =>
           req.id === modal.requestId
@@ -107,9 +95,7 @@ const Requests = () => {
       console.error("Update failed:", err.response?.data || err.message);
       alert(
         "Failed to update request: " +
-          (err.response?.data
-            ? JSON.stringify(err.response.data)
-            : "Unknown error")
+          (err.response?.data ? JSON.stringify(err.response.data) : "Unknown error")
       );
     } finally {
       setLoading(false);
@@ -159,12 +145,8 @@ const Requests = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold text-gray-800 mb-2">
-        Consultation Requests
-      </h2>
-      <p className="text-gray-600 mb-8">
-        Review and manage student consultation requests.
-      </p>
+      <h2 className="text-3xl font-bold text-gray-800 mb-2">Consultation Requests</h2>
+      <p className="text-gray-600 mb-8">Review and manage student consultation requests.</p>
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
@@ -206,12 +188,8 @@ const Requests = () => {
               className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-l-4 ${statusBorder[req.status]} p-6`}
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                  {req.title}
-                </h3>
-                <span
-                  className={`px-3 py-1 text-xs font-medium rounded-full ${statusColor[req.status]}`}
-                >
+                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{req.title}</h3>
+                <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusColor[req.status]}`}>
                   {req.status}
                 </span>
               </div>
@@ -219,7 +197,7 @@ const Requests = () => {
               <div className="space-y-3 text-sm text-gray-600">
                 <p className="flex items-center gap-2">
                   <User size={16} className="text-gray-500" />
-                  {req.student || req.student_name || "Unknown Student"}
+                  {req.student_name || "Unknown Student"}
                 </p>
                 <p className="flex items-center gap-2">
                   <Calendar size={16} className="text-gray-500" />
@@ -228,9 +206,7 @@ const Requests = () => {
               </div>
 
               {req.appointment && (
-                <p className="mt-4 text-sm text-green-700 font-medium">
-                  Scheduled: {req.appointment}
-                </p>
+                <p className="mt-4 text-sm text-green-700 font-medium">Scheduled: {req.appointment}</p>
               )}
 
               {req.response && (
@@ -293,46 +269,48 @@ const Requests = () => {
                   : modal.type === "complete"
                   ? "Submit Response"
                   : "Request Details"}
-                
               </h3>
 
+              {/* View Details */}
+              {modal.type === "view" && (
+                <div className="space-y-3 text-gray-700">
+                  <p>
+                    <strong>Type:</strong> {selectedRequest.appointment_type?.label|| "Unknown Type"}
+                  </p>
+                  <p>
+                    <strong>Student:</strong> {selectedRequest.student_name || "Unknown Student"}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {selectedRequest.status}
+                  </p>
+                  <p>
+                    <strong>Date:</strong> {selectedRequest.date || selectedRequest.created_at}
+                  </p>
+                  <div>
+                    <strong>Description:</strong>
+                    <p className="text-gray-600 mt-1">{selectedRequest.description || "No description"}</p>
+                  </div>
 
-{modal.type === "view" && (
-    console.log(selectedRequest),
+                  {selectedRequest.appointment && (
+                    <p className="text-green-700">
+                      <strong>Scheduled:</strong> {selectedRequest.appointment}
+                    </p>
+                  )}
 
-  <div className="space-y-3 text-gray-700">
-    <p><strong>Title:</strong> {selectedRequest.Appointment_type}</p>
-    <p><strong>Student:</strong> {selectedRequest.student || selectedRequest.student_name}</p>
-    <p><strong>Status:</strong> {selectedRequest.status}</p>
-    <p><strong>Date:</strong> {selectedRequest.date || selectedRequest.created_at}</p>
-  
-    <div>
-      <strong>Description:</strong>
-      <p className="text-gray-600 mt-1">
-        {selectedRequest.description || "No description"}
-      </p>
-    </div>
+                  {selectedRequest.response?.supervisor_name && (
+                    <div>
+                      <strong>Supervisor:</strong> {selectedRequest.response.supervisor_name}
+                    </div>
+                  )}
 
-  {selectedRequest.appointment && (
-    <p className="text-green-700">
-      <strong>Scheduled:</strong> {selectedRequest.appointment}
-    </p>
-  )}
-
-    {selectedRequest.consultant_response && (
-      <div>
-        <strong>Consultant Response:</strong>
-        <p className="text-gray-600 mt-1">
-          {selectedRequest.consultant_response}
-        </p>
-      </div>
-    )}
-  </div>
-)}
-
-           <p className="text-lg text-gray-800 font-medium mb-6">
-                {selectedRequest.title}
-              </p>
+                  {selectedRequest.response?.supervisor_comment && (
+                    <div>
+                      <strong>Response:</strong>
+                      <p className="text-gray-600 mt-1">{selectedRequest.response.supervisor_comment}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Show textarea for accept/reject/complete */}
               {["accept", "reject", "complete"].includes(modal.type) && (
@@ -349,7 +327,7 @@ const Requests = () => {
                 </div>
               )}
 
-              {/* Show date/time only when accepting first */}
+              {/* Show date/time only when accepting */}
               {modal.type === "accept" && (
                 <div className="mb-8">
                   <label className="block text-gray-700 font-medium mb-3">

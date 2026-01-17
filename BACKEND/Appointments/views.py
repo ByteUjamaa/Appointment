@@ -54,8 +54,11 @@ def create_appointment(request):
             {"message": "Appointment created successfully"},
             status=201
         )
-
+    else:
+     print(serializer.errors)  # <-- add this
     return Response(serializer.errors, status=400)
+
+    
 
 
 @api_view(['GET'])
@@ -63,17 +66,30 @@ def create_appointment(request):
 def list_appointments(request):
     user = request.user
 
-    if user.role != 'student':
-        return Response({"error": "Only students can view their appointments"}, status=403)
+    # Student view
+    if user.role == 'student':
+        try:
+            student_profile = StudentProfile.objects.get(user=user)
+        except StudentProfile.DoesNotExist:
+            return Response({"error": "Student profile not found"}, status=400)
 
-    try:
-        student_profile = user.profile  # related_name='profile' in StudentProfile
-    except StudentProfile.DoesNotExist:
-        return Response({"error": "Student profile not found"}, status=400)
+        appointments = Appointment.objects.filter(student=student_profile)
 
-    appointments = Appointment.objects.filter(student=student_profile)
+    # Supervisor view
+    elif user.role == 'supervisor':
+        try:
+            supervisor_profile = SupervisorProfile.objects.get(user=user)
+        except SupervisorProfile.DoesNotExist:
+            return Response({"error": "Supervisor profile not found"}, status=400)
+
+        appointments = Appointment.objects.filter(supervisor=supervisor_profile)
+
+    else:
+        return Response({"error": "Only students or supervisors can view appointments"}, status=403)
+
     serializer = AppointmentSerializer(appointments, many=True)
     return Response(serializer.data, status=200)
+
 
 
 @api_view(['GET'])
