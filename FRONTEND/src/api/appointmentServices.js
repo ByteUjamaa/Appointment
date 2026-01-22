@@ -32,42 +32,43 @@ const AppointmentService = {
    * - POST if response does NOT exist
    * - PATCH if response EXISTS
    */
-updateStatus: (
-  id,
-  status,
-  supervisor_comment = "",
-  confirmed_datetime = null
-) =>
-  axiosInstance
-    .patch(`/appointments/${id}/response/`, {
-      status: status.toLowerCase(), // 🔥 THIS LINE FIXES EVERYTHING
-      supervisor_comment,
-      confirmed_datetime,
-    })
-    .then((r) => r.data),
+  updateStatus: async (
+    id,
+    status,
+    supervisor_comment = "",
+    confirmed_datetime = null
+  ) => {
+    try {
+      // 1️⃣ Check if a response already exists
+      const checkResponse = await AppointmentService.getAppointmentResponse(
+        id
+      );
+      const hasResponse = checkResponse?.data !== null;
 
+      // 2️⃣ Build payload
+      const payload = {
+        status: status.toLowerCase(),
+        supervisor_comment,
+        
+      };
 
-    // const hasResponse = checkResponse.data?.data !== null;
-
-    // const payload = {
-    //   status,
-    //   supervisor_comment,
-    //   confirmed_datetime,
-    // };
-
-  //   // 2️⃣ Decide POST or PATCH
-  //   if (hasResponse) {
-  //     // UPDATE existing response
-  //     return axiosInstance
-  //       .patch(`/appointments/${appointmentId}/response/`, payload)
-  //       .then((r) => r.data);
-  //   } else {
-  //     // CREATE new response
-  //     return axiosInstance
-  //       .post(`/appointments/${appointmentId}/response/`, payload)
-  //       .then((r) => r.data);
-  //   }
-  // },
+      // 3️⃣ Decide POST or PATCH
+      if (hasResponse) {
+        // UPDATE existing response
+        return axiosInstance
+          .patch(`/appointments/${id}/response/`, payload)
+          .then((r) => r.data);
+      } else {
+        // CREATE new response
+        return axiosInstance
+          .post(`/appointments/${id}/response/`, payload)
+          .then((r) => r.data);
+      }
+    } catch (error) {
+      console.error("Error updating appointment response:", error);
+      throw error;
+    }
+  },
 
   /* =======================
      STATUS & COUNTS
@@ -81,9 +82,7 @@ updateStatus: (
   ======================= */
 
   getDashboardSummary: () =>
-    axiosInstance
-      .get("/appointments/dashboard/summary/")
-      .then((r) => r.data),
+    axiosInstance.get("/appointments/dashboard/summary/").then((r) => r.data),
 
   getDashboardStats: () =>
     axiosInstance.get("/consultant/stats").then((r) => r.data),
