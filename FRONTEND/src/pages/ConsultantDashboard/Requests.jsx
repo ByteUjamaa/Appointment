@@ -65,14 +65,24 @@ const Requests = () => {
 
     try {
       setLoading(true);
+
       let newStatus = "";
-
       if (modal.type === "accept") newStatus = "Accepted";
-      else if (modal.type === "reject") newStatus = "Rejected";
-      else if (modal.type === "complete") newStatus = "Completed";
-      else return;
+      if (modal.type === "reject") newStatus = "Rejected";
+      if (modal.type === "complete") newStatus = "Completed";
 
-      await appointmentService.updateStatus(modal.requestId, newStatus, modal.reason);
+      const confirmed_datetime =
+  modal.type === "accept" && modal.sessionDate && modal.sessionTime
+    ? `${modal.sessionDate}T${modal.sessionTime}:00`
+    : null;
+
+await appointmentService.updateStatus(
+  modal.requestId,
+  newStatus,
+  modal.reason,
+  confirmed_datetime
+);
+
 
       setRequests((prev) =>
         prev.map((req) =>
@@ -83,7 +93,7 @@ const Requests = () => {
                 consultant_response: modal.reason,
                 appointment:
                   modal.type === "accept"
-                    ? req.appointment || `${modal.sessionDate} at ${modal.sessionTime}`
+                    ? `${modal.sessionDate} at ${modal.sessionTime}`
                     : req.appointment,
               }
             : req
@@ -209,9 +219,9 @@ const Requests = () => {
                 <p className="mt-4 text-sm text-green-700 font-medium">Scheduled: {req.appointment}</p>
               )}
 
-              {req.response && (
+              {req.consultant_response && (
                 <p className="mt-2 text-sm text-gray-700">
-                  <strong>Response:</strong> {req.response}
+                  <strong>Response:</strong> {req.supervisor_comment || req.consultant_response}
                 </p>
               )}
 
@@ -275,7 +285,7 @@ const Requests = () => {
               {modal.type === "view" && (
                 <div className="space-y-3 text-gray-700">
                   <p>
-                    <strong>Type:</strong> {selectedRequest.appointment_type?.label|| "Unknown Type"}
+                    <strong>Type:</strong> {selectedRequest.appointment_type?.label || "Unknown Type"}
                   </p>
                   <p>
                     <strong>Student:</strong> {selectedRequest.student_name || "Unknown Student"}
@@ -297,16 +307,10 @@ const Requests = () => {
                     </p>
                   )}
 
-                  {selectedRequest.response?.supervisor_name && (
+                  {selectedRequest.consultant_response && (
                     <div>
-                      <strong>Supervisor:</strong> {selectedRequest.response.supervisor_name}
-                    </div>
-                  )}
-
-                  {selectedRequest.response?.supervisor_comment && (
-                    <div>
-                      <strong>Response:</strong>
-                      <p className="text-gray-600 mt-1">{selectedRequest.response.supervisor_comment}</p>
+                      <strong>Consultant Response:</strong>
+                      <p className="text-gray-600 mt-1">{selectedRequest.supervisor_comment}</p>
                     </div>
                   )}
                 </div>
