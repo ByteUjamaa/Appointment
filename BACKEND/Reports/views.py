@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
+from urllib3 import request
 
 from .models import AppointmentReport
 from Accounts.models import StudentProfile, SupervisorProfile
@@ -26,20 +27,7 @@ def serialize_report(report):
 def report_list_create(request):
     user = request.user
 
-    # GET: list reports
-    if request.method == 'GET':
-        try:
-            student = StudentProfile.objects.get(user=user)
-            reports = AppointmentReport.objects.filter(student=student)
-        except StudentProfile.DoesNotExist:
-            if hasattr(user, 'supervisorprofile'):
-                reports = AppointmentReport.objects.filter(supervisor__user=user)
-            else:
-                reports = AppointmentReport.objects.none()
-
-        serializer = AppointmentReportDetailSerializer(reports, many=True)
-        return Response(serializer.data)
-
+    
     # POST: create report
     if request.method == 'POST':
         try:
@@ -73,6 +61,29 @@ def report_list_create(request):
             return Response(serialize_report(serializer.instance), status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+    # GET: list reports
+    if request.method == 'GET':
+        try:
+        # Student sees own reports
+            student = StudentProfile.objects.get(user=user)
+            reports = AppointmentReport.objects.filter(student=student)
+
+        except StudentProfile.DoesNotExist:
+             if hasattr(user, 'supervisor_profile'):
+                supervisor = user.supervisor_profile
+                reports = AppointmentReport.objects.filter(
+                supervisor=supervisor,
+                status='submitted' 
+            )
+             else:
+                 reports = AppointmentReport.objects.none()
+
+    serializer = AppointmentReportDetailSerializer(reports, many=True)
+    return Response(serializer.data)
+
 
 # Retrieve / Update Report
 @api_view(['GET', 'PATCH'])

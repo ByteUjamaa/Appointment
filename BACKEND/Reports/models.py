@@ -59,7 +59,7 @@ class AppointmentReport(models.Model):
         if self.status == 'submitted' and self.submitted_at is None:
             self.submitted_at = timezone.now()
 
-        if self.status in ['approved', 'requested_changes'] and self.reviewed_at is None:
+        if self.status in ['approved', 'changes_requested'] and self.reviewed_at is None:
             self.reviewed_at = timezone.now()
 
         super().save(*args, **kwargs)
