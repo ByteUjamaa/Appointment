@@ -15,6 +15,7 @@ const Requests = () => {
     reason: "",
     sessionDate: "",
     sessionTime: "",
+  
   });
 
   // Fetch requests on mount
@@ -40,7 +41,7 @@ const Requests = () => {
       open: true,
       type,
       requestId: id,
-      reason: req?.consultant_response || "",
+      reason: req?.supervisor_responses || "",
       sessionDate: req?.sessionDate || "",
       sessionTime: req?.sessionTime || "",
     });
@@ -71,17 +72,22 @@ const Requests = () => {
       if (modal.type === "reject") newStatus = "Rejected";
       if (modal.type === "complete") newStatus = "Completed";
 
-      const confirmed_datetime =
-  modal.type === "accept" && modal.sessionDate && modal.sessionTime
-    ? `${modal.sessionDate}T${modal.sessionTime}:00`
-    : null;
+  //     const confirmed_datetime =
+  // modal.type === "accept" && modal.sessionDate && modal.sessionTime
+  //   ? `${modal.sessionDate}T${modal.sessionTime}:00`
+  //   : null;
+
+// ensure response exists before status update
+await appointmentService.getAppointmentResponse(modal.requestId);
 
 await appointmentService.updateStatus(
   modal.requestId,
   newStatus,
   modal.reason,
-  confirmed_datetime
+  modal.sessionDate,
+  modal.sessionTime
 );
+
 
 
       setRequests((prev) =>
@@ -90,7 +96,7 @@ await appointmentService.updateStatus(
             ? {
                 ...req,
                 status: newStatus,
-                consultant_response: modal.reason,
+                supervisor_comment: modal.reason,
                 appointment:
                   modal.type === "accept"
                     ? `${modal.sessionDate} at ${modal.sessionTime}`
@@ -219,9 +225,9 @@ await appointmentService.updateStatus(
                 <p className="mt-4 text-sm text-green-700 font-medium">Scheduled: {req.appointment}</p>
               )}
 
-              {req.consultant_response && (
+              {req.supervisor_comment && (
                 <p className="mt-2 text-sm text-gray-700">
-                  <strong>Response:</strong> {req.supervisor_comment || req.consultant_response}
+                  <strong>Response:</strong> {req.supervisor_comment }
                 </p>
               )}
 
