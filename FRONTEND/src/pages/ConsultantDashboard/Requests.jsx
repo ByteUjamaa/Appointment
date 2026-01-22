@@ -15,6 +15,7 @@ const Requests = () => {
     reason: "",
     sessionDate: "",
     sessionTime: "",
+  
   });
 
   // Fetch requests on mount
@@ -40,7 +41,7 @@ const Requests = () => {
       open: true,
       type,
       requestId: id,
-      reason: req?.consultant_response || "",
+      reason: req?.supervisor_responses || "",
       sessionDate: req?.sessionDate || "",
       sessionTime: req?.sessionTime || "",
     });
@@ -65,14 +66,29 @@ const Requests = () => {
 
     try {
       setLoading(true);
+
       let newStatus = "";
-
       if (modal.type === "accept") newStatus = "Accepted";
-      else if (modal.type === "reject") newStatus = "Rejected";
-      else if (modal.type === "complete") newStatus = "Completed";
-      else return;
+      if (modal.type === "reject") newStatus = "Rejected";
+      if (modal.type === "complete") newStatus = "Completed";
 
-      await appointmentService.updateStatus(modal.requestId, newStatus, modal.reason);
+  //     const confirmed_datetime =
+  // modal.type === "accept" && modal.sessionDate && modal.sessionTime
+  //   ? `${modal.sessionDate}T${modal.sessionTime}:00`
+  //   : null;
+
+// ensure response exists before status update
+await appointmentService.getAppointmentResponse(modal.requestId);
+
+await appointmentService.updateStatus(
+  modal.requestId,
+  newStatus,
+  modal.reason,
+  modal.sessionDate,
+  modal.sessionTime
+);
+
+
 
       setRequests((prev) =>
         prev.map((req) =>
@@ -80,10 +96,10 @@ const Requests = () => {
             ? {
                 ...req,
                 status: newStatus,
-                consultant_response: modal.reason,
+                supervisor_comment: modal.reason,
                 appointment:
                   modal.type === "accept"
-                    ? req.appointment || `${modal.sessionDate} at ${modal.sessionTime}`
+                    ? `${modal.sessionDate} at ${modal.sessionTime}`
                     : req.appointment,
               }
             : req
@@ -209,9 +225,9 @@ const Requests = () => {
                 <p className="mt-4 text-sm text-green-700 font-medium">Scheduled: {req.appointment}</p>
               )}
 
-              {req.response && (
+              {req.supervisor_comment && (
                 <p className="mt-2 text-sm text-gray-700">
-                  <strong>Response:</strong> {req.response}
+                  <strong>Response:</strong> {req.supervisor_comment }
                 </p>
               )}
 
@@ -275,7 +291,7 @@ const Requests = () => {
               {modal.type === "view" && (
                 <div className="space-y-3 text-gray-700">
                   <p>
-                    <strong>Type:</strong> {selectedRequest.appointment_type?.label|| "Unknown Type"}
+                    <strong>Type:</strong> {selectedRequest.appointment_type?.label || "Unknown Type"}
                   </p>
                   <p>
                     <strong>Student:</strong> {selectedRequest.student_name || "Unknown Student"}
@@ -297,16 +313,10 @@ const Requests = () => {
                     </p>
                   )}
 
-                  {selectedRequest.response?.supervisor_name && (
+                  {selectedRequest.consultant_response && (
                     <div>
-                      <strong>Supervisor:</strong> {selectedRequest.response.supervisor_name}
-                    </div>
-                  )}
-
-                  {selectedRequest.response?.supervisor_comment && (
-                    <div>
-                      <strong>Response:</strong>
-                      <p className="text-gray-600 mt-1">{selectedRequest.response.supervisor_comment}</p>
+                      <strong>Consultant Response:</strong>
+                      <p className="text-gray-600 mt-1">{selectedRequest.supervisor_comment}</p>
                     </div>
                   )}
                 </div>

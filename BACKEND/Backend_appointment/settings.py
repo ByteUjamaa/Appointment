@@ -95,17 +95,17 @@ AUTHENTICATION_BACKENDS = [
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'appointment_db',
-        'USER': 'postgres',
-        'PASSWORD': 'password123',
-        'HOST': 'localhost',
+        'USER': 'appointment_user',
+        'PASSWORD': 'securepassword',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
