@@ -41,10 +41,11 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "year_of_study",
         ]
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        user_data = validated_data.pop("user", None)
 
         # Update User table
-        for attr, value in user_data.items():
+        if user_data: 
+         for attr, value in user_data.items():
             setattr(instance.user, attr, value)
 
         instance.user.first_login = False
@@ -60,9 +61,13 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
 
 class SupervisorProfileSerializer(serializers.ModelSerializer):
-    available_days = serializers.PrimaryKeyRelatedField(
+    available_days = serializers.SerializerMethodField(read_only=True) 
+    available_days_input = serializers.SlugRelatedField(
+        many=True,
         queryset=Availability.objects.all(),
-        many=True
+        slug_field="day",
+        write_only=True,
+        required=False
     )
 
     first_name = serializers.CharField(source="user.first_name")
@@ -79,29 +84,30 @@ class SupervisorProfileSerializer(serializers.ModelSerializer):
             "title",
             "phone",
             "available_days",
+            "available_days_input" 
         ]
     
+    def get_available_days(self, obj):
+        return [day.get_day_display() for day in obj.available_days.all()]
+    
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        days_input = validated_data.pop("available_days_input", None)
+        if days_input is not None:
+            instance.available_days.set(days_input)
 
-        # Update User info
+        # Update user
+        user_data = validated_data.pop("user", {})
         for attr, value in user_data.items():
             setattr(instance.user, attr, value)
-
         instance.user.first_login = False
         instance.user.save()
-
-        # Update available days
-        if "available_days" in validated_data:
-            instance.available_days.set(validated_data.pop("available_days"))
 
         # Update profile fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
         instance.save()
-        return instance
 
+        return instance
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()

@@ -7,16 +7,22 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   return (
     <div
-      className={`fixed md:static top-0 left-0 h-screen bg-white shadow-md p-5 z-50 transition-transform duration-300
+      className={`fixed md:static top-0 left-0 h-screen bg-white dark:bg-gray-950 shadow-md p-5 z-50 transition-transform duration-300
       ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 w-64`}
     >
-      <h2 className="text-2xl font-bold mb-6">Consultant Portal</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+        Consultant Portal
+      </h2>
 
       <ul className="space-y-4">
         <NavLink
-          to="home"
+          to="Consultanthome"
           className={({ isActive }) =>
-            `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
+            `${linkClasses} ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+            }`
           }
         >
           <Home /> Home
@@ -25,16 +31,24 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <NavLink
           to="requests"
           className={({ isActive }) =>
-            `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
+            `${linkClasses} ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+            }`
           }
         >
           <FileText /> Requests
         </NavLink>
 
         <NavLink
-          to="reports"
+          to="Consultantreports"
           className={({ isActive }) =>
-            `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
+            `${linkClasses} ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+            }`
           }
         >
           <BarChart2 /> Reports
@@ -43,15 +57,17 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <NavLink
           to="ConsultantProfile"
           className={({ isActive }) =>
-            `${linkClasses} ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`
+            `${linkClasses} ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+            }`
           }
         >
           <User /> Profile
         </NavLink>
 
-        <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer text-red-600">
-          <LogOut /> Logout
-        </div>
+        
       </ul>
     </div>
   );

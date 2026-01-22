@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Plus, Calendar,  Trash2 } from 'lucide-react';
+import { Plus, Calendar,  Trash2, } from 'lucide-react';
 import { AppointmentModal } from './AppointmentsModal';
 import { AdminContext } from '../AdminDashboard';
 

@@ -5,16 +5,19 @@ from .views import (
     list_appointments,
     update_appointment_status,
     appointment_status_count,
-    post
-   
+    dashboard_summary,
+    AppointmentResponseView
 )
 
 urlpatterns = [
-
     path("types/", list_appointment_types),
     path("create/", create_appointment),
     path("", list_appointments),
-    path("appointments/<int:pk>/update-status/", update_appointment_status),
-    path("appointments/status-count/", appointment_status_count),
-    path("response/" ,post, name="appointment-response")
+    # These are relative to the /api/appointments/ prefix defined in the project urls
+    path("<int:pk>/update-status/", update_appointment_status),
+    path("status-count/", appointment_status_count),
+    # Dashboard summary used by student/supervisor/admin dashboards
+    path("dashboard/summary/", dashboard_summary),
+    path("<int:appointment_id>/response/",AppointmentResponseView.as_view(),),
+ 
 ]
