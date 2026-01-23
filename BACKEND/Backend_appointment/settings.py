@@ -95,16 +95,42 @@ AUTHENTICATION_BACKENDS = [
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'appointment_db',
-        'USER': 'appointment_user',
-        'PASSWORD': 'securepassword',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+from pathlib import Path
+import environ
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    USE_POSTGRES=(bool, False)
+)
+
+# Read .env only if it exists
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    env.read_env(env_path)
+    
+if env("USE_POSTGRES"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("POSTGRES_DB"),
+            "USER": env("POSTGRES_USER"),
+            "PASSWORD": env("POSTGRES_PASSWORD"),
+            "HOST": env("POSTGRES_HOST", default="localhost"),
+            "PORT": env("POSTGRES_PORT", default="5432"),
+        }
     }
-}
+    print("✅ PostgreSQL enabled")
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+    print("⚠️ SQLite3 enabled")
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
