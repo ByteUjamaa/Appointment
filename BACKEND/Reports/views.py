@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
-from urllib3 import request
+from urllib import request
 
 from .models import AppointmentReport
 from Accounts.models import StudentProfile, SupervisorProfile
