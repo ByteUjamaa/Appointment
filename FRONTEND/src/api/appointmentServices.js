@@ -70,9 +70,8 @@ const AppointmentService = {
     }
   },
 
-  /* =======================
-     STATUS & COUNTS
-  ======================= */
+  /*
+     STATUS & COUNTS */
 
   getStatusCount: () =>
     axiosInstance.get("/appointments/status-count/").then((r) => r.data),
